@@ -72,7 +72,6 @@ def create_quiz_question(id: int, question: schemas.QuizQuestion, db: Session = 
     db.add(new_question)
     db.commit()
     db.refresh(new_question)
-    print(new_question.id, new_question.question, new_question.created_at, new_question.quiz_id)
     return new_question
 
 
@@ -128,3 +127,8 @@ def update_quiz_question(id: int, qid: int, updated_question: schemas.QuizQuesti
     question_query.update(updated_question.dict(), synchronize_session=False)
     db.commit()
     return question_query.first()
+
+
+@router.post("/{id}/question/{qid}/answer", response_model=schemas.QuizAnswerResponse)
+def create_quiz_answer(id: int, qid: int, answer: schemas.QuizAnswer, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    new_answer = models.QuizAnswer(question_id=qid, **answer.dict())
