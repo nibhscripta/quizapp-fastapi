@@ -16,7 +16,28 @@ class Quiz(Base):
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     
     owner = relationship("User")
+    
 
+class QuizQuestion(Base):
+    __tablename__ = 'questions'
+    
+    id = Column(Integer, primary_key=True, nullable=False)
+    question = Column(String, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+    quiz_id = Column(Integer, ForeignKey("quizzes.id", ondelete="CASCADE"), nullable=False)
+    
+    quiz = relationship("Quiz")
+    
+class QuizAnswer(Base):
+    __tablename__ = 'answers'
+    
+    id = Column(Integer, primary_key=True, nullable=False)
+    answer = Column(String, nullable=False)
+    correct = Column(Boolean, server_default='FALSE', nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+    question_id = Column(Integer, ForeignKey("questions.id", ondelete="CASCADE"), nullable=False)
+    
+    question = relationship("QuizQuestion")
 
 class User(Base):
     __tablename__ = 'users'

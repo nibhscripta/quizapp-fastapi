@@ -25,16 +25,45 @@ class UserCreate(BaseModel):
     
 
 # Quiz schemas
-class QuizBase(BaseModel):
+class Quiz(BaseModel):
     title: str
     content: str
     
-class QuizResponse(QuizBase):
+
+class QuizResponse(Quiz):
     id: int
     created_at: datetime
     owner_id: int
     owner: UserResponse
+    
+    class Config:
+        orm_mode = True 
+    
+    
+class QuizAnswer(BaseModel):
+    answer: str
+    correct: bool = False
+    
+
+class QuizAnswerResponse(QuizAnswer):
+    id: int
+    created_at: datetime
+    question_id: int
+    
+    class Config:
+        orm_mode = True 
+    
+
         
+class QuizQuestion(BaseModel):
+    question: str
+    
+    
+class QuizQuestionResponse(QuizQuestion):
+    id: int
+    created_at: datetime
+    quiz_id: int
+    
     class Config:
         orm_mode = True
     
