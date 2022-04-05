@@ -86,7 +86,7 @@ def get_quiz_questions(id: int, db: Session = Depends(get_db), current_user: int
     return questions
 
 
-@router.get("/{id}/question/{qid}", response_model=schemas.QuizQuestionResponse)
+@router.get("/{id}/question/{qid}")
 def get_quiz_question(id: int, qid: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
     question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
@@ -96,7 +96,17 @@ def get_quiz_question(id: int, qid: int, db: Session = Depends(get_db), current_
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {qid} was not found')
     if quiz.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
-    return question
+    answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid).all()
+    context = {
+        'question': question.question, 'id': qid, 'created_at': question.created_at, 'quiz_id': id,
+        'answers': []
+    }
+    for answer in answers:
+        answer_dict = {
+            'answer': answer.answer, 'correct': answer.correct, 'id': answer.id, 'created_at': answer.created_at, "question_id": qid
+        }
+        context['answers'].append(answer_dict)
+    return context
 
 
 @router.delete("/{id}/question/{qid}", status_code=status.HTTP_204_NO_CONTENT)

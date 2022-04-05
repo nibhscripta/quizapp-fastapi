@@ -1,6 +1,6 @@
-from pydantic import BaseModel, EmailStr, conint
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 
 # User model schemas
@@ -63,6 +63,13 @@ class QuizQuestionResponse(QuizQuestion):
     id: int
     created_at: datetime
     quiz_id: int
+    
+    class Config:
+        orm_mode = True
+        
+class QuizQuestionAnswers(BaseModel):
+    answer: str
+    
     
     class Config:
         orm_mode = True
