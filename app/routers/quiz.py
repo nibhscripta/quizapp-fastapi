@@ -13,17 +13,6 @@ router = APIRouter(
 )
 
 
-def questionDict(qid, db):
-    question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
-    answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid).all()
-    answers_list =[]
-    for answer in answers:
-        answers_list.append(answer.__dict__)
-        
-    question.__dict__['answers'] = answers_list
-    return question.__dict__
-
-
 @router.get("/", response_model=List[schemas.QuizResponse])
 def get_quizzes(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     quizzes = db.query(models.Quiz).filter(models.Quiz.owner_id == current_user.id).all()
@@ -90,8 +79,8 @@ def create_quiz_question(id: int, question: schemas.CreateQuizQuestion, db: Sess
             new_answer = models.QuizAnswer(question_id=new_question.id, **answer)
             db.add(new_answer)
             db.commit()
-    new_question.__dict__['answers'] = answers
-    return new_question
+    return utils.questionDict(new_question.id, db)
+    
     
 
 
@@ -116,7 +105,7 @@ def get_quiz_question(id: int, qid: int, db: Session = Depends(get_db), current_
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {qid} was not found')
     if quiz.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
-    return questionDict(qid, db)
+    return utils.questionDict(qid, db)
 
 
 @router.delete("/{id}/question/{qid}", status_code=status.HTTP_204_NO_CONTENT)
@@ -192,4 +181,4 @@ def update_quiz_answer(id: int, qid: int, aid: int, updated_answer: schemas.Answ
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer with id {aid} was not found')
     answer.update(updated_answer.dict(), synchronize_session=False)
     db.commit()
-    return questionDict(qid, db)
+    return utils.questionDict(qid, db)
