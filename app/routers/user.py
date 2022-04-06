@@ -2,8 +2,9 @@ from fastapi import Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from typing import List
 
-from .. import models, schemas, utils, oauth2
+from .. import models, utils, oauth2
 from ..database import get_db
+from ..schemas import user
 
 
 router = APIRouter(
@@ -12,8 +13,8 @@ router = APIRouter(
 )
 
 
-@router.post('/', status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+@router.post('/', status_code=status.HTTP_201_CREATED, response_model=user.UserResponse)
+def create_user(user: user.UserCreate, db: Session = Depends(get_db)):
     hashed_password = utils.hash(user.password)
     user.password = hashed_password
     new_user = models.User(**user.dict())
@@ -23,7 +24,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 
-@router.get('/{id}', response_model=schemas.UserResponse)
+@router.get('/{id}', response_model=user.UserResponse)
 def get_user(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     if id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
