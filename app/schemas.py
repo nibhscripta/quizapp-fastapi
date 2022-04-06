@@ -53,11 +53,13 @@ class AnswerResponse(Answer):
     class Config:
         orm_mode: True
 
-    
-class QuizQuestion(BaseModel):
+class QuizQuestion(BaseModel): 
     question: str
-    answers: list[Answer]
     
+    
+class CreateQuizQuestion(QuizQuestion):
+    answers: list[Answer]
+
     
 class QuizQuestionResponse(QuizQuestion):
     id: int
@@ -67,6 +69,12 @@ class QuizQuestionResponse(QuizQuestion):
     class Config:
         orm_mode = True
 
+
+class QuizQuestionAnswers(QuizQuestionResponse):
+    answers: list[AnswerResponse]
+    
+    class Config:
+        orm_mode = True
 
 # JWT token schemas
 class Token(BaseModel):

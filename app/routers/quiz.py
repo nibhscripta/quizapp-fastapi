@@ -13,6 +13,17 @@ router = APIRouter(
 )
 
 
+def questionDict(qid, db):
+    question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
+    answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid).all()
+    answers_list =[]
+    for answer in answers:
+        answers_list.append(answer.__dict__)
+        
+    question.__dict__['answers'] = answers_list
+    return question.__dict__
+
+
 @router.get("/", response_model=List[schemas.QuizResponse])
 def get_quizzes(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     quizzes = db.query(models.Quiz).filter(models.Quiz.owner_id == current_user.id).all()
@@ -61,8 +72,8 @@ def update_quiz(id:int, updated_quiz:schemas.Quiz, db: Session = Depends(get_db)
     return quiz_query.first()
 
 
-@router.post("/{id}/question/", response_model=schemas.QuizQuestionResponse)
-def create_quiz_question(id: int, question: schemas.QuizQuestion, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+@router.post("/{id}/question/", response_model=schemas.QuizQuestionAnswers)
+def create_quiz_question(id: int, question: schemas.CreateQuizQuestion, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
     if quiz == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} does not exist.')
@@ -74,10 +85,11 @@ def create_quiz_question(id: int, question: schemas.QuizQuestion, db: Session = 
     db.commit()
     db.refresh(new_question)
     answers = question['answers']
-    for answer in answers:
-        new_answer = models.QuizAnswer(question_id=new_question.id, **answer)
-        db.add(new_answer)
-        db.commit()
+    if answers != []:
+        for answer in answers:
+            new_answer = models.QuizAnswer(question_id=new_question.id, **answer)
+            db.add(new_answer)
+            db.commit()
     new_question.__dict__['answers'] = answers
     return new_question
     
@@ -94,7 +106,7 @@ def get_quiz_questions(id: int, db: Session = Depends(get_db), current_user: int
     return questions
 
 
-@router.get("/{id}/question/{qid}", response_model=schemas.QuizQuestionResponse)
+@router.get("/{id}/question/{qid}", response_model=schemas.QuizQuestionAnswers)
 def get_quiz_question(id: int, qid: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
     question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
@@ -104,16 +116,7 @@ def get_quiz_question(id: int, qid: int, db: Session = Depends(get_db), current_
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {qid} was not found')
     if quiz.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
-    answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid).all()
-    answers_list =[]
-    for answer in answers:
-        answer_dict = {}
-        answer_dict['answer'] = answer.answer
-        answer_dict['correct'] = answer.correct
-        answers_list.append(answer_dict)
-        
-    question.__dict__['answers'] = answers_list
-    return question
+    return questionDict(qid, db)
 
 
 @router.delete("/{id}/question/{qid}", status_code=status.HTTP_204_NO_CONTENT)
@@ -131,8 +134,8 @@ def delete_quiz_question(id: int, qid: int, db: Session = Depends(get_db), curre
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.put("/{id}/question/{qid}", response_model=schemas.QuizQuestionResponse)
-def update_quiz_question(id: int, qid: int, updated_question: schemas.QuizQuestion , db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+@router.put("/{id}/question/{qid}", response_model=schemas.QuizQuestionAnswers)
+def update_quiz_question(id: int, qid: int, updated_question: schemas.QuizQuestionResponse, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
     question_query = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid)
     if not quiz:
@@ -141,75 +144,52 @@ def update_quiz_question(id: int, qid: int, updated_question: schemas.QuizQuesti
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {qid} was not found')
     if quiz.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
-    question_query.update(updated_question.dict(), synchronize_session=False)
+    updated_question = updated_question.dict()
+    updated_answers = updated_question['answers']
+    updated_question.pop('answers')
+    question_query.update(updated_question, synchronize_session=False)
     db.commit()
-    return question_query.first()
+    for answer in updated_answers:
+        answer_query = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == answer['id'])
+        answer_query.update(answer, synchronize_session=False)
+        db.commit()
+    updated_question['answers'] = updated_answers
+    return updated_question
 
 
-# @router.post("/{id}/question/{qid}/answer", response_model=schemas.QuizAnswerResponse)
-# def create_quiz_answer(id: int, qid: int, answer: schemas.QuizAnswer, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-#     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
-#     if not quiz: 
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
-#     question = question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
-#     if not question:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {qid} was not found')
-#     if quiz.owner_id != current_user.id:
-#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
-#     new_answer = models.QuizAnswer(question_id=qid, **answer.dict())
-#     db.add(new_answer)
-#     db.commit()
-#     db.refresh(new_answer)
-#     return new_answer
 
 
-# @router.get("/{id}/question/{qid}/answer/{aid}", response_model=schemas.QuizAnswerResponse)
-# def get_quiz_answer(id: int, qid: int, aid: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-#     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
-#     if not quiz: 
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
-#     question = question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
-#     if not question:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {qid} was not found')
-#     if quiz.owner_id != current_user.id:
-#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
-#     answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == aid).first()
-#     if not answer:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer with id {aid} was not found')
-#     return answer
+@router.delete("/{id}/question/{qid}/answer/{aid}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_quiz_answer(id: int, qid: int, aid: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
+    if not quiz: 
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
+    question = question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
+    if not question:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {qid} was not found')
+    if quiz.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
+    answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == aid)
+    if not answer:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer with id {aid} was not found')
+    answer.delete(synchronize_session=False)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-# @router.delete("/{id}/question/{qid}/answer/{aid}", status_code=status.HTTP_204_NO_CONTENT)
-# def delete_quiz_answer(id: int, qid: int, aid: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-#     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
-#     if not quiz: 
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
-#     question = question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
-#     if not question:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {qid} was not found')
-#     if quiz.owner_id != current_user.id:
-#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
-#     answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == aid)
-#     if not answer:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer with id {aid} was not found')
-#     answer.delete(synchronize_session=False)
-#     db.commit()
-#     return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-# @router.put("/{id}/question/{qid}/answer/{aid}", response_model=schemas.QuizAnswerResponse)
-# def update_quiz_answer(id: int, qid: int, aid: int, updated_answer: schemas.QuizAnswer, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-#     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
-#     if not quiz: 
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
-#     question = question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
-#     if not question:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {qid} was not found')
-#     if quiz.owner_id != current_user.id:
-#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
-#     answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == aid)
-#     if not answer:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer with id {aid} was not found')
-#     answer.update(updated_answer.dict(), synchronize_session=False)
-#     db.commit()
-#     return answer.first()
+@router.put("/{id}/question/{qid}/answer/{aid}", response_model=schemas.QuizQuestionAnswers)
+def update_quiz_answer(id: int, qid: int, aid: int, updated_answer: schemas.Answer, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
+    if not quiz: 
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
+    question = question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
+    if not question:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {qid} was not found')
+    if quiz.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
+    answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == aid)
+    if not answer:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer with id {aid} was not found')
+    answer.update(updated_answer.dict(), synchronize_session=False)
+    db.commit()
+    return questionDict(qid, db)
