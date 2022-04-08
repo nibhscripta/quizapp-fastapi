@@ -135,6 +135,7 @@ def update_quiz_question(id: int, qid: int, updated_question: quiz.QuizQuestionR
     if quiz.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
     updated_question = updated_question.dict()
+    print(updated_question)
     updated_answers = updated_question['answers']
     updated_question.pop('answers')
     question_query.update(updated_question, synchronize_session=False)

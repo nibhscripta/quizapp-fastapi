@@ -22,3 +22,14 @@ class AssessmentAnswer(BaseModel):
     answer: str
     id: int
     question_id: int
+    
+class PostAssessment(BaseModel):
+    question_id: int
+    answer_id: int
+  
+  
+class AssessmentResult(BaseModel):  
+    question: str
+    posted_answer: str
+    correct_answer: str
+    correct: bool
