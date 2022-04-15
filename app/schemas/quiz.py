@@ -45,7 +45,6 @@ class QuizQuestionResponse(QuizQuestion):
     id: int
     created_at: datetime
     quiz_id: int
-    answers: list[AnswerResponse]
     
     class Config:
         orm_mode = True

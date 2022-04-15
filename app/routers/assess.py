@@ -31,15 +31,15 @@ def post_assessment(id: int, assessment: List[assess.PostAssessment], db: Sessio
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
     results = []
     for post in assessment:
-        question = db.query(models.QuizQuestion).filter(models.QuizQuestion == post.question_id).first()
+        question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == post.question_id).first()
         if not question:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {id} was not found')
-        answer = db.query(models.QuizAnswer).filter(models.QuizAnswer == post.answer_id).first()
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {post.question_id} was not found')
+        answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == post.answer_id).first()
         if not answer:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer with id {id} was not found')
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer with id {post.answer_id} was not found')
         result = {}
         result['question'] = question.question
-        result['posted_answer'] = db.query(models.QuizAnswer).filter(models.QuizAnswer == assessment.answer_id).first().answer
+        result['posted_answer'] = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == post.answer_id).first().answer
         result['correct_answer'] = answer.answer
         if result['posted_answer'] == result['correct_answer']:
             result['correct'] = True
