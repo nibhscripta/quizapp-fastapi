@@ -31,7 +31,8 @@ class AnswerResponse(Answer):
     question_id: int
     
     class Config:
-        orm_mode: True
+        orm_mode = True 
+        
 
 class QuizQuestion(BaseModel): 
     question: str
