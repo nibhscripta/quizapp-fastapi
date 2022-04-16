@@ -27,28 +27,32 @@ def get_quiz(id: int, db: Session = Depends(get_db)):
 @router.post("/{id}", response_model=List[assess.AssessmentResult])
 def post_assessment(id: int, assessment: List[assess.PostAssessment], db: Session = Depends(get_db)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
+    results = []
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
-    results = []
-    for post in assessment:
-        question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == post.question_id).first()
-        if not question:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {post.question_id} was not found')
-        answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == post.answer_id).first()
-        if not answer:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer with id {post.answer_id} was not found')
-        result = {}
-        result['question'] = question.question
-        result['posted_answer'] = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == post.answer_id).first().answer
-        result['correct_answer'] = answer.answer
-        if result['posted_answer'] == result['correct_answer']:
-            result['correct'] = True
-        else: 
-            result['correct'] = False
-        results.append(result)
+    for question in assessment:
+        question_result = {}
+        question_query = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == question.question_id).first()
+        if not question_query:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {question.question_id} was not found')
+        question_query_question = question_query.question
+        answer_query = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == question.answer_id).first()
+        if not answer_query:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer with id {question.answer_id} was not found')
+        posted_answer = answer_query.answer
+        question_result['question'] = question_query_question
+        question_result['posted_answer'] = posted_answer
+        if answer_query.correct == True:
+            question_result['correct_answer'] = posted_answer
+            question_result['correct'] = True
+        elif answer_query.correct == False:
+            question_result['correct'] = False
+            correct_answer =   db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == question.question_id).filter(models.QuizAnswer.correct == True).first().answer
+            question_result['correct_answer'] = correct_answer
+        else:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        results.append(question_result)
     return results
-        
-        
 
 @router.get("/{id}/question", response_model=List[assess.AssessmentQuestion])
 def get_quiz_questions(id: int, db: Session = Depends(get_db)):
