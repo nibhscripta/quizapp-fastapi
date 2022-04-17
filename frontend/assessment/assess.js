@@ -61,46 +61,64 @@ const answers = [
   ],
 ];
 // render question fields
-questions.forEach((question) => {
-  let questionFieldDiv = `
-              <div class="quiz-question-field" id="quiz-question-field">
-                <div class="quiz-question" id="quiz-question">
-                </div>
-                <div class="quiz-answers" id="quiz-answers">
-                  <form>
-                    
-                  </form>
-                </div>
-              </div>
-`;
-  document
-    .getElementById("assess-main")
-    .insertAdjacentHTML("beforeend", questionFieldDiv);
-});
+document.getElementById("app").insertAdjacentHTML(
+  "beforeend",
+  `
+  <div class="assess-main" id="assess-main">
+    <div id="quiz-title">Calculus</div>
+    <div id="question-element">
+      <div id="question">
+      
+      </div>
+      <form id="answers">
+        
+      </form>
+      <button id="next">Next</button>
+      <button id="previous">Previous</button>
+    </div>
+  </div>
+`
+);
 let questionIndex = 0;
-document.querySelectorAll("#quiz-question-field").forEach((field) => {
-  const questionId = questions[questionIndex].id;
-  const questionDiv = field.childNodes[1];
-  const questionP = document.createElement("p");
-  const questionText = document.createTextNode(
-    questions[questionIndex].question
-  );
-  questionP.appendChild(questionText);
-  questionDiv.appendChild(questionP);
-  const answersForm = field.childNodes[3].querySelector("form");
+function renderQuestion(qIndex) {
+  const qText = document.getElementById("question");
+  qText.innerText = questions[qIndex].question;
+  const answersForm = document.getElementById("answers");
+  while (answersForm.lastChild) {
+    answersForm.removeChild(answersForm.lastChild);
+  }
+  answers[qIndex].forEach((answerDict) => {
+    const answerInputElement = document.createElement("input");
+    answerInputElement.setAttribute("name", questions[qIndex].id);
+    answerInputElement.setAttribute("id", answerDict.id);
+    answerInputElement.setAttribute("value", answerDict.id);
+    answerInputElement.setAttribute("type", "radio");
+    const answerLabel = document.createElement("label");
+    answerLabel.setAttribute("for", answerDict.id);
+    answerLabel.innerText = answerDict.answer;
+    answersForm.appendChild(answerInputElement);
+    answersForm.appendChild(answerLabel);
+  });
   answersForm.onchange = (e) => {
     e.preventDefault();
-    const answerId = e.target.value;
-    console.log(questionId);
+    const answerID = e.target.value;
+    const questionID = e.target.name;
+    console.log(questionID);
   };
-  answers[questionIndex].forEach((answer) => {
-    answersForm.insertAdjacentHTML(
-      "beforeend",
-      `
-          <input type="radio" id="${answer.id}" name="${questions[questionIndex].id}" value="${answer.id}" /> 
-          <label for="${answer.id}">${answer.answer}</label>   
-    `
-    );
-  });
-  questionIndex = questionIndex + 1;
-});
+}
+renderQuestion(questionIndex);
+document.getElementById("next").onclick = () => {
+  questionIndex += 1;
+  if (questionIndex === questions.length) {
+    questionIndex -= 1;
+  } else {
+    renderQuestion(questionIndex);
+  }
+};
+document.getElementById("previous").onclick = () => {
+  if (questionIndex === 0) {
+  } else {
+    questionIndex -= 1;
+    renderQuestion(questionIndex);
+  }
+};
