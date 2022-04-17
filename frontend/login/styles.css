@@ -1,0 +1,76 @@
+/* noscript style */
+#noscript {
+  position: absolute;
+  top: 0;
+  left: 0;
+  text-align: center;
+  width: 100vw;
+  padding: 10px;
+  background-color: red;
+}
+/* reset styles */
+* {
+  padding: 0;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 25px;
+  --pr-color: #455e89;
+  --pr-color-light: #5c7aad;
+  --pr-color-dark: #293851;
+  --lt-grey: #999;
+}
+body {
+  background-color: #e8e8e8;
+}
+a {
+  text-decoration: none;
+  color: #000;
+}
+button,
+input,
+textarea {
+  outline: none;
+  border: 1px solid #fff;
+  background: transparent;
+}
+button:focus,
+input:focus,
+textarea:focus {
+  border: 1px solid #000;
+}
+/* login styles */
+.login-main {
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  height: 100vh;
+}
+.login-form {
+  display: flex;
+  flex-flow: column nowrap;
+  padding: 20px;
+  background-color: #fff;
+  border: 3px solid var(--pr-color);
+  border-radius: 10px;
+}
+.login-form form {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 10px;
+}
+.login-form form input,
+.login-form form button {
+  max-width: 100%;
+  border: 2px solid var(--lt-grey);
+  border-radius: 5px;
+  padding: 5px;
+  transition: all ease-in-out 50ms;
+}
+.login-form form input:focus,
+.login-form form button:focus {
+  border: 2px solid var(--pr-color-light);
+}
+.login-form form button:hover {
+  background-color: #e8e8e8;
+  border: 2px solid var(--pr-color-light);
+}
