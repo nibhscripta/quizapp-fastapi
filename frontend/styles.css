@@ -17,6 +17,13 @@
 }
 body {
   background-color: #e8e8e8;
+  padding: 0;
+}
+html {
+  padding: 0;
+}
+#app {
+  padding: 0;
 }
 /* home styles */
 .home-main {
@@ -25,4 +32,5 @@ body {
   display: grid;
   place-items: center;
   justify-content: space-around;
+  padding: 0;
 }

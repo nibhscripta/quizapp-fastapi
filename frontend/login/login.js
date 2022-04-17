@@ -13,7 +13,7 @@ const loginFormDiv = `
         </div>
     </div>
 `;
-app.insertAdjacentHTML("afterend", loginFormDiv);
+app.insertAdjacentHTML("beforeend", loginFormDiv);
 // handle login submission
 const loginForm = document.getElementById("login-form");
 loginForm.onsubmit = (e) => {
