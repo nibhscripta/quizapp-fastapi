@@ -1,7 +1,31 @@
 // remove noscript warning
 document.getElementById("noscript").remove();
 // render quiz page
+const apiUrl = "http://127.0.0.1:8000/";
+let access_token = localStorage.getItem("access_token");
+if (!access_token) {
+  window.location.replace(window.location.href.replace("quiz", "login"));
+}
+let token = "Bearer " + access_token;
+const axiosConfig = {
+  method: "get",
+  url: "/quiz",
+  baseURL: apiUrl,
+  headers: {
+    Authorization: token,
+  },
+};
+const getQuizzes = axios(axiosConfig)
+  .then((response) => {
+    let data = JSON.stringify(response.data);
+    return data;
+  })
+  .catch((error) => {
+    const errorData = error;
+    console.log(errorData);
+  });
 
+const quizData = getQuizzes;
 // toggle add quiz form
 const quizForm = document.getElementById("add-quiz-form");
 const addBtn = document.getElementById("add-btn");
