@@ -33,6 +33,8 @@ def post_assessment(id: int, assessment: List[assess.PostAssessment], db: Sessio
     results = []
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
+    if not quiz.public:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this quiz is not public")
     for question in assessment:
         question_result = {}
         question_query = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == question.question_id).first()
@@ -62,6 +64,8 @@ def get_quiz_questions(id: int, db: Session = Depends(get_db)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
+    if not quiz.public:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this quiz is not public")
     questions = db.query(models.QuizQuestion).filter(models.QuizQuestion.quiz_id == id).all()
     for i, question in enumerate(questions):
         questions[i] = question.__dict__
@@ -72,6 +76,8 @@ def get_quiz_question_answers(id: int, qid: int, db: Session = Depends(get_db)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
+    if not quiz.public:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this quiz is not public")
     question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
     if not question:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {id} was not found')
