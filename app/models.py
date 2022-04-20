@@ -15,6 +15,7 @@ class Quiz(Base):
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     public = Column(Boolean, server_default='FALSE', nullable=False)
+    due = Column(TIMESTAMP(timezone=True), server_default=None)
     
     owner = relationship("User")
     

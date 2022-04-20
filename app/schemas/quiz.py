@@ -9,6 +9,7 @@ class Quiz(BaseModel):
     title: str
     content: str
     public: Optional[bool] = False
+    due: Optional[datetime] = None
     
 
 class QuizResponse(Quiz):
