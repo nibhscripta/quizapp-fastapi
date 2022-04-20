@@ -15,17 +15,23 @@ const axiosConfig = {
     Authorization: token,
   },
 };
-const getQuizzes = axios(axiosConfig)
+axios(axiosConfig)
   .then((response) => {
     let data = JSON.stringify(response.data);
-    return data;
+    data = JSON.parse(data);
+    data.forEach((quiz) => {
+      const quizLink = document.createElement("a");
+      quizLink.text = quiz["title"];
+      quizLink.setAttribute("id", quiz["id"]);
+      quizLink.style.cssText = "cursor:pointer;";
+      quizLink.addEventListener("click", renderQuiz(quiz["id"]));
+      document.getElementById("quiz-list").appendChild(quizLink);
+    });
   })
   .catch((error) => {
     const errorData = error;
     console.log(errorData);
   });
-
-const quizData = getQuizzes;
 // toggle add quiz form
 const quizForm = document.getElementById("add-quiz-form");
 const addBtn = document.getElementById("add-btn");
@@ -51,3 +57,10 @@ quizForm.onsubmit = (e) => {
   quizListDiv.classList.remove("none");
   quizListHead.classList.remove("none");
 };
+// render quiz
+let count = 0;
+function renderQuiz(id) {
+  console.log(id);
+  count += 1;
+  console.log(count);
+}

@@ -21,7 +21,10 @@ def get_quiz(id: int, db: Session = Depends(get_db)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
+    if not quiz.public:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this quiz is not public")
     return quiz
+        
 
 
 @router.post("/{id}", response_model=List[assess.AssessmentResult])
