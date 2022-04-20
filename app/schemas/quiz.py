@@ -8,6 +8,7 @@ from . import user
 class Quiz(BaseModel):
     title: str
     content: str
+    public: Optional[bool] = False
     
 
 class QuizResponse(Quiz):
@@ -15,6 +16,7 @@ class QuizResponse(Quiz):
     created_at: datetime
     owner_id: int
     owner: user.UserResponse
+    public: bool
     
     class Config:
         orm_mode = True 
