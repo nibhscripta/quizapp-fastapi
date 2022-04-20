@@ -3,6 +3,7 @@ from fastapi import Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
+from datetime import datetime
 
 from app.schemas.quiz import Answer
 
@@ -23,6 +24,9 @@ def get_quiz(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
     if not quiz.public:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this quiz is not public")
+    if quiz.due is not None:
+        if not db.query(models.Quiz).filter(models.Quiz.id == id).filter(models.Quiz.due < datetime.now()).first():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'{quiz.title} was due {quiz.due}')
     return quiz
         
 
@@ -35,6 +39,9 @@ def post_assessment(id: int, assessment: List[assess.PostAssessment], db: Sessio
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
     if not quiz.public:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this quiz is not public")
+    if quiz.due is not None:
+        if not db.query(models.Quiz).filter(models.Quiz.id == id).filter(models.Quiz.due < datetime.now()).first():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'{quiz.title} was due {quiz.due}')
     for question in assessment:
         question_result = {}
         question_query = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == question.question_id).first()
@@ -66,6 +73,9 @@ def get_quiz_questions(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
     if not quiz.public:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this quiz is not public")
+    if quiz.due is not None:
+        if not db.query(models.Quiz).filter(models.Quiz.id == id).filter(models.Quiz.due < datetime.now()).first():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'{quiz.title} was due {quiz.due}')
     questions = db.query(models.QuizQuestion).filter(models.QuizQuestion.quiz_id == id).all()
     for i, question in enumerate(questions):
         questions[i] = question.__dict__
@@ -78,6 +88,9 @@ def get_quiz_question_answers(id: int, qid: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
     if not quiz.public:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this quiz is not public")
+    if quiz.due is not None:
+        if not db.query(models.Quiz).filter(models.Quiz.id == id).filter(models.Quiz.due < datetime.now()).first():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'{quiz.title} was due {quiz.due}')
     question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
     if not question:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {id} was not found')
