@@ -48,3 +48,14 @@ class User(Base):
     email = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+        
+class QuizInstance(Base):
+    __tablename__ = 'quizinstances'
+    
+    id = Column(Integer, primary_key=True, nullable=False)
+    user_id = Column(String, nullable=False)
+    username = Column(String, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+    quiz_id = Column(Integer, ForeignKey("quizzes.id", ondelete="CASCADE"), nullable=False)
+    
+    quiz = relationship("Quiz")
