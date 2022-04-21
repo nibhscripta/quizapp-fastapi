@@ -42,8 +42,12 @@ def start_assessment(id: int, instance: assess.QuizInstance, db: Session = Depen
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'{quiz.title} was due {quiz.due}')
     user_id = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(12))
     while db.query(models.QuizInstance).filter(models.QuizInstance.user_id == user_id).first():
-    new_instanse = models.QuizInstance(user_id=user_id, quiz_id=id, **instance.dict())
-    return new_instanse
+        user_id = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(12))
+    new_instance = models.QuizInstance(user_id=user_id, quiz_id=id, **instance.dict())
+    db.add(new_instance)
+    db.commit()
+    db.refresh(new_instance)
+    return new_instance
         
 
 
