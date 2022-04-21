@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
 from datetime import datetime
+import random, string
 
 from app.schemas.quiz import Answer
 
@@ -18,7 +19,7 @@ router = APIRouter(
 )
 
 @router.get("/{id}", response_model=assess.Assessment)
-def get_quiz(id: int, db: Session = Depends(get_db)):
+def get_assessment(id: int, db: Session = Depends(get_db)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
@@ -28,6 +29,21 @@ def get_quiz(id: int, db: Session = Depends(get_db)):
         if not db.query(models.Quiz).filter(models.Quiz.id == id).filter(models.Quiz.due < datetime.now()).first():
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'{quiz.title} was due {quiz.due}')
     return quiz
+
+@router.post("/{id}/start", response_model=assess.QuizInstanceResponse)
+def start_assessment(id: int, instance: assess.QuizInstance, db: Session = Depends(get_db)):
+    quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
+    if not quiz:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
+    if not quiz.public:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this quiz is not public")
+    if quiz.due is not None:
+        if not db.query(models.Quiz).filter(models.Quiz.id == id).filter(models.Quiz.due < datetime.now()).first():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'{quiz.title} was due {quiz.due}')
+    user_id = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(12))
+    while db.query(models.QuizInstance).filter(models.QuizInstance.user_id == user_id).first():
+    new_instanse = models.QuizInstance(user_id=user_id, quiz_id=id, **instance.dict())
+    return new_instanse
         
 
 

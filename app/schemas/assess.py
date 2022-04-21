@@ -2,6 +2,18 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional, List
 
+class QuizInstance(BaseModel):
+    username: str
+
+class QuizInstanceResponse(QuizInstance):
+    id: int
+    user_id: str
+    created_at: datetime
+    quiz_id: int
+    
+    class Config:
+        orm_mode = True
+
 
 class Assessment(BaseModel):
     title: str
