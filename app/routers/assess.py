@@ -50,44 +50,8 @@ def start_assessment(id: int, instance: assess.QuizInstance, db: Session = Depen
     return new_instance
         
 
-
-@router.post("/{id}", response_model=List[assess.AssessmentResult])
-def post_assessment(id: int, assessment: List[assess.PostAssessment], db: Session = Depends(get_db)):
-    quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
-    results = []
-    if not quiz:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
-    if not quiz.public:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this quiz is not public")
-    if quiz.due is not None:
-        if not db.query(models.Quiz).filter(models.Quiz.id == id).filter(models.Quiz.due < datetime.now()).first():
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'{quiz.title} was due {quiz.due}')
-    for question in assessment:
-        question_result = {}
-        question_query = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == question.question_id).first()
-        if not question_query:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {question.question_id} was not found')
-        question_query_question = question_query.question
-        answer_query = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == question.answer_id).first()
-        if not answer_query:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer with id {question.answer_id} was not found')
-        posted_answer = answer_query.answer
-        question_result['question'] = question_query_question
-        question_result['posted_answer'] = posted_answer
-        if answer_query.correct == True:
-            question_result['correct_answer'] = posted_answer
-            question_result['correct'] = True
-        elif answer_query.correct == False:
-            question_result['correct'] = False
-            correct_answer =   db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == question.question_id).filter(models.QuizAnswer.correct == True).first().answer
-            question_result['correct_answer'] = correct_answer
-        else:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        results.append(question_result)
-    return results
-
 @router.get("/{id}/question", response_model=List[assess.AssessmentQuestion])
-def get_quiz_questions(id: int, db: Session = Depends(get_db)):
+def get_quiz_questions(id: int, uid: Optional[str], db: Session = Depends(get_db)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
@@ -102,7 +66,7 @@ def get_quiz_questions(id: int, db: Session = Depends(get_db)):
     return questions
 
 @router.get("/{id}/question/{qid}/answers", response_model=List[assess.AssessmentAnswer])
-def get_quiz_question_answers(id: int, qid: int, db: Session = Depends(get_db)):
+def get_quiz_question_answers(id: int, qid: int, uid: Optional[str], db: Session = Depends(get_db)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
@@ -119,3 +83,67 @@ def get_quiz_question_answers(id: int, qid: int, db: Session = Depends(get_db)):
         answers[i] = answer.__dict__
     return answers
 
+@router.post("/{id}/question/{qid}/instance", response_model=assess.InstanceAnswer)
+def post_instance_answer(id: int, qid: int, post_answer: assess.InstanceAnswer, db: Session = Depends(get_db)):
+    quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
+    if not quiz:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
+    if not quiz.public:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this quiz is not public")
+    if quiz.due is not None:
+        if not db.query(models.Quiz).filter(models.Quiz.id == id).filter(models.Quiz.due < datetime.now()).first():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'{quiz.title} was due {quiz.due}')
+    question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
+    if not question:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {id} was not found')
+    instance = db.query(models.QuizInstance).filter(models.QuizInstance.id == post_answer.instance_id).first()
+    if not instance:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='instance not found')
+    if instance.user_id != post_answer.user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this instance is not yours")
+    answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == post_answer.answer_id).first()
+    if not answer:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='answer does not exist')
+    if answer.correct:
+        correct_answer_id = post_answer.answer_id
+        correct = True
+    else:
+        correct_answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid, models.QuizAnswer.correct == True).first()
+        correct_answer_id = correct_answer.id
+        correct = False
+    instance_answer = models.QuizInstanceAnswer(instance_id=post_answer.instance_id, answer_id=post_answer.answer_id, correct_answer_id=correct_answer_id, correct=correct)
+    db.add(instance_answer)
+    db.commit()
+    return post_answer
+
+
+@router.put("/{id}/question/{qid}/instance", response_model=assess.InstanceAnswer)
+def update_instance_answer(id: int, qid: int, post_answer: assess.InstanceAnswer, db: Session = Depends(get_db)):
+    quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
+    if not quiz:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
+    if not quiz.public:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this quiz is not public")
+    if quiz.due is not None:
+        if not db.query(models.Quiz).filter(models.Quiz.id == id).filter(models.Quiz.due < datetime.now()).first():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'{quiz.title} was due {quiz.due}')
+    question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
+    if not question:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {id} was not found')
+    instance = db.query(models.QuizInstance).filter(models.QuizInstance.id == post_answer.instance_id).first()
+    if not instance:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='instance not found')
+    if instance.user_id != post_answer.user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this instance is not yours")
+    answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == post_answer.answer_id).first()
+    if not answer:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='answer does not exist')
+    if answer.correct:
+        correct_answer_id = post_answer.answer_id
+        correct = True
+    else:
+        correct_answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid, models.QuizAnswer.correct == True).first()
+        correct_answer_id = correct_answer.id
+        correct = False
+    instance_answer = models.QuizInstanceAnswer(instance_id=post_answer.instance_id, answer_id=post_answer.answer_id, correct_answer_id=correct_answer_id, correct=correct)
+    return post_answer

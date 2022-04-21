@@ -60,3 +60,15 @@ class QuizInstance(Base):
     complete = Column(Boolean, server_default='FALSE', nullable=False)
     
     quiz = relationship("Quiz")
+    
+class QuizInstanceAnswer(Base):
+    __tablename__ = 'quizinstanceanswers'
+    
+    id = Column(Integer, primary_key=True, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+    instance_id = Column(Integer, ForeignKey("quizinstances.id", ondelete="CASCADE"), nullable=False)
+    answer_id = Column(Integer, nullable=False)
+    correct_answer_id = Column(Integer, nullable=False)
+    correct = Column(Boolean, server_default='FALSE', nullable=False)
+    
+    instance = relationship("QuizInstance")
