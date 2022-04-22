@@ -145,5 +145,9 @@ def update_instance_answer(id: int, qid: int, post_answer: assess.InstanceAnswer
         correct_answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid, models.QuizAnswer.correct == True).first()
         correct_answer_id = correct_answer.id
         correct = False
-    instance_answer = models.QuizInstanceAnswer(instance_id=post_answer.instance_id, answer_id=post_answer.answer_id, correct_answer_id=correct_answer_id, correct=correct)
+    instance_answer = db.query(models.QuizInstanceAnswer).filter(models.QuizInstanceAnswer.instance_id == post_answer.instance_id)
+    if not instance_answer.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='instance does not exist')
+    instance_answer.update(post_answer.dict(), correct_answer_id, correct, synchronize_session=False)
+    db.commit()
     return post_answer
