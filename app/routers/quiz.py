@@ -16,7 +16,7 @@ router = APIRouter(
 
 @router.get("/", response_model=List[quiz.QuizResponse])
 def get_quizzes(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), p: int = 0):
-    quizzes = db.query(models.Quiz).filter(models.Quiz.owner_id == current_user.id).limit(20).offest(p).all()
+    quizzes = db.query(models.Quiz).filter(models.Quiz.owner_id == current_user.id).limit(20).offset(p).all()
     return quizzes
 
 
