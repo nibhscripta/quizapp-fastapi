@@ -4,9 +4,13 @@ Quiz app built in python
 
 1. Create a virtual environment:
 
-`python3 -m venv venv` 2. Install requirements:
+`python3 -m venv venv`
 
-`pip install -r requirements.txt` 3. Run the api with uvicorn:
+2. Install requirements:
+
+`pip install -r requirements.txt`
+
+3. Run the api with uvicorn:
 
 `uvicorn app.app:app --reload`
 
