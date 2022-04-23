@@ -1,0 +1,17 @@
+.login-page-container {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  justify-content: center;
+}
+.login-page-container form {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 10px;
+  align-items: left;
+  max-width: 400px;
+}
+.login-page-container form input,
+.login-page-container form button {
+  padding: 5px;
+}
