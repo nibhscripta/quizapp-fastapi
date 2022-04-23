@@ -1,0 +1,6 @@
+.quiz-page-container {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  justify-content: center;
+}
