@@ -1,6 +1,17 @@
 .quiz-page-container {
   width: 100vw;
   height: 100vh;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+}
+.quiz-card {
+  width: 500px;
+  height: min-content;
+  background-color: #fff;
   display: grid;
-  justify-content: center;
+  grid-template-columns: 1fr 1fr min-content min-content;
+  padding: 15px;
+  gap: 10px;
 }

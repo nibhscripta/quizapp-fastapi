@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import "./quiz.css";
+import QuizCard from "./components/QuizCard";
 
 const Quiz = ({ apiUrl }) => {
   const authToken = JSON.parse(localStorage.getItem("authorization"));
-  console.log(authToken);
 
   const [quizzes, setQuizzes] = useState([]);
 
@@ -33,11 +33,13 @@ const Quiz = ({ apiUrl }) => {
     getQuizzes();
   }, []);
 
+  console.log(quizzes);
+
   return (
     <div className="quiz-page-container">
       <Link to="/">home</Link>
       {quizzes.map((quiz) => (
-        <h2 key={quiz.id}>{quiz.title}</h2>
+        <QuizCard key={quiz.id} quiz={quiz} />
       ))}
     </div>
   );
