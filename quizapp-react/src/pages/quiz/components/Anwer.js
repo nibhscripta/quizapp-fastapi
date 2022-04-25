@@ -33,7 +33,10 @@ const Anwer = ({ id, apiUrl, authToken, qid }) => {
     <ul>
       {answers &&
         answers.map((answer) => (
-          <li key={answer.id} className={answer.correct && "correct"}>
+          <li
+            key={answer.id}
+            className={answer.correct ? "correct" : "incorrect"}
+          >
             {answer.answer}
           </li>
         ))}

@@ -33,7 +33,8 @@ const Question = ({ id, apiUrl, authToken }) => {
       {questions &&
         questions.map((question) => (
           <div className="question" key={question.id}>
-            {question.question}
+            <h3>{question.question}</h3>
+
             <Anwer
               qid={question.id}
               apiUrl={apiUrl}
