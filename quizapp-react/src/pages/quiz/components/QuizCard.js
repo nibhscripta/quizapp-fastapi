@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 const QuizCard = ({ quiz }) => {
   return (
     <div className="quiz-card">

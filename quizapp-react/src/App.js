@@ -15,7 +15,7 @@ function App() {
           <Route path="/" exact element={<Home />} />
           <Route path="/login" exact element={<Login apiUrl={apiUrl} />} />
           <Route path="/quiz" exact element={<Quiz apiUrl={apiUrl} />} />
-          <Route path="/quiz/:id" element={<QuizPage />} />
+          <Route path="/quiz/:id" element={<QuizPage apiUrl={apiUrl} />} />
         </Routes>
       </Router>
     </div>

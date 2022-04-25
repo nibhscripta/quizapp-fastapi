@@ -37,7 +37,7 @@ const Quiz = ({ apiUrl }) => {
     <div className="quiz-page-container">
       <Link to="/">home</Link>
       {quizzes.map((quiz) => (
-        <Link to={`/quiz/${quiz.id}`} key={quiz.id}>
+        <Link to={`/quiz/${quiz.id}`} key={quiz.id} quiz={quiz}>
           <QuizCard quiz={quiz} />
         </Link>
       ))}
