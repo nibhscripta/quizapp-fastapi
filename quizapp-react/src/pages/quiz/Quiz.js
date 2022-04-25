@@ -33,8 +33,6 @@ const Quiz = ({ apiUrl }) => {
     getQuizzes();
   }, []);
 
-  console.log(quizzes);
-
   return (
     <div className="quiz-page-container">
       <Link to="/">home</Link>

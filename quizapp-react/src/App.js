@@ -1,6 +1,7 @@
 import Login from "./pages/login/Login";
 import Home from "./pages/home/Home";
 import Quiz from "./pages/quiz/Quiz";
+import QuizPage from "./pages/quiz";
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -13,8 +14,9 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" exact element={<Home />} />
-          <Route path="/login" element={<Login apiUrl={apiUrl} />} />
+          <Route path="/login" exact element={<Login apiUrl={apiUrl} />} />
           <Route path="/quiz" exact element={<Quiz apiUrl={apiUrl} />} />
+          <Route path="/quiz/:id" element={<QuizPage />} />
         </Routes>
       </Router>
     </div>
