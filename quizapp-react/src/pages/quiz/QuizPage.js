@@ -1,4 +1,9 @@
-export const QuizPage = ({ id }) => {
+import { useParams } from "react-router-dom";
+
+const QuizPage = () => {
+  const { id } = useParams();
   console.log(id);
-  return <div></div>;
+  return <div>QuizPage</div>;
 };
+
+export default QuizPage;

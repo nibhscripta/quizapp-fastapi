@@ -1,10 +1,9 @@
 import Login from "./pages/login/Login";
 import Home from "./pages/home/Home";
 import Quiz from "./pages/quiz/Quiz";
-import QuizPage from "./pages/quiz";
+import QuizPage from "./pages/quiz/QuizPage";
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { useState, useEffect } from "react";
 
 function App() {
   const apiUrl = "http://127.0.0.1:8000";
