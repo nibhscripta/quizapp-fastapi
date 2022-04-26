@@ -139,6 +139,9 @@ def create_answer(id: int, qid: int, answer: quiz.Answer, db: Session = Depends(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question not found')
     if quiz.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
+    answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid).all()
+    if len(answers) > 4:
+        raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail='question has four answers')
     new_answer = models.QuizAnswer(question_id=qid, **answer.dict())
     db.add(new_answer)
     db.commit()
