@@ -48,10 +48,3 @@ class QuizQuestionResponse(QuizQuestion):
     
     class Config:
         orm_mode = True
-
-
-class QuizQuestionAnswers(QuizQuestionResponse):
-    answers: list[AnswerResponse]
-    
-    class Config:
-        orm_mode = True

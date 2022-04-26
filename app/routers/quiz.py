@@ -172,8 +172,9 @@ def delete_quiz_answer(id: int, qid: int, aid: int, db: Session = Depends(get_db
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.put("/{id}/ques/{qid}/an/{aid}", response_model=quiz.QuizQuestionAnswers)
+@router.put("/{id}/ques/{qid}/an/{aid}", response_model=quiz.AnswerResponse)
 def update_quiz_answer(id: int, qid: int, aid: int, updated_answer: quiz.Answer, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    updated_answer =  updated_answer.dict()
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
     if not quiz: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
@@ -183,8 +184,8 @@ def update_quiz_answer(id: int, qid: int, aid: int, updated_answer: quiz.Answer,
     if quiz.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == aid)
-    if not answer:
+    if not answer.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer not found')
-    answer.update(updated_answer.dict(), synchronize_session=False)
+    answer.update(updated_answer, synchronize_session=False)
     db.commit()
-    return utils.questionDict(qid, db)
+    return answer.first()
