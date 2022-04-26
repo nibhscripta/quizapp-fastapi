@@ -9,7 +9,7 @@ from ..schemas import quiz
 
 
 router = APIRouter(
-    prefix='/quiz',
+    prefix='/q',
     tags=['Quizzes']
 )
 
@@ -33,7 +33,7 @@ def create_quiz(quiz: quiz.Quiz, db: Session = Depends(get_db), current_user: in
 def get_quiz(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id, models.Quiz.owner_id == current_user.id).first()  
     if not quiz:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
     return quiz
 
 
@@ -41,9 +41,9 @@ def get_quiz(id: int, db: Session = Depends(get_db), current_user: int = Depends
 def delete_quiz(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id)
     if quiz.first() == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} does not exist.')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
     if quiz.first().owner_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     quiz.delete(synchronize_session=False)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -54,21 +54,21 @@ def update_quiz(id:int, updated_quiz:quiz.Quiz, db: Session = Depends(get_db), c
     quiz_query = db.query(models.Quiz).filter(models.Quiz.id == id)
     quiz = quiz_query.first()
     if quiz == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} does not exist.')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
     if quiz.owner_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     quiz_query.update(updated_quiz.dict(), synchronize_session=False)
     db.commit()
     return quiz_query.first()
 
 
-@router.post("/{id}/question/", response_model=quiz.QuizQuestionResponse)
+@router.post("/{id}/ques/", response_model=quiz.QuizQuestionResponse)
 def create_quiz_question(id: int, question: quiz.QuizQuestion, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
     if quiz == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} does not exist.')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
     if quiz.owner_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     new_question = models.QuizQuestion(quiz_id=id, **question.dict())
     db.add(new_question)
     db.commit()
@@ -76,14 +76,14 @@ def create_quiz_question(id: int, question: quiz.QuizQuestion, db: Session = Dep
     return new_question
 
 
-@router.get("/{id}/question/", response_model=List[quiz.QuizQuestionResponse])
+@router.get("/{id}/ques/", response_model=List[quiz.QuizQuestionResponse])
 def get_quiz_questions(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     questions = db.query(models.QuizQuestion).filter(models.QuizQuestion.quiz_id == id).all()
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
     if not questions:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
     if quiz.owner_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     return questions
 
 
