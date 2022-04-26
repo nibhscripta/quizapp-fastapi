@@ -144,9 +144,9 @@ def create_answer(id: int, qid: int, answer: quiz.Answer, db: Session = Depends(
     if len(answers) > 3:
         raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail='question has four answers')
     true_answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid, models.QuizAnswer.correct == True).all()
-    if not true_answers:
-        answer['correct'] = True
-        print(answer)
+    if len(answers) > 2:
+        if not true_answers:
+            answer['correct'] = True
     new_answer = models.QuizAnswer(question_id=qid, **answer)
     db.add(new_answer)
     db.commit()
