@@ -39,10 +39,6 @@ class AnswerResponse(Answer):
 
 class QuizQuestion(BaseModel): 
     question: str
-    
-    
-class CreateQuizQuestion(QuizQuestion):
-    answers: list[Answer]
 
     
 class QuizQuestionResponse(QuizQuestion):
