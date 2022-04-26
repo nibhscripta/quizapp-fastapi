@@ -87,19 +87,6 @@ def get_quiz_questions(id: int, db: Session = Depends(get_db), current_user: int
     return questions
 
 
-@router.get("/{id}/question/{qid}", response_model=quiz.QuizQuestionResponse)
-def get_quiz_question(id: int, qid: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
-    question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
-    if not quiz:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
-    if not question:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {qid} was not found')
-    if quiz.owner_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized to perform this request')
-    return question
-
-
 @router.delete("/{id}/question/{qid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_quiz_question(id: int, qid: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
