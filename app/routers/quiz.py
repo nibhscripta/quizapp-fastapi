@@ -131,6 +131,7 @@ def get_answers(id: int, qid: int, db: Session = Depends(get_db), current_user: 
 
 @router.post("/{id}/ques/{qid}/an", response_model=quiz.AnswerResponse)
 def create_answer(id: int, qid: int, answer: quiz.Answer, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    answer = answer.dict()
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
     if not quiz: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
@@ -139,10 +140,14 @@ def create_answer(id: int, qid: int, answer: quiz.Answer, db: Session = Depends(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question not found')
     if quiz.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
-    answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid).all()
-    if len(answers) > 4:
+    answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid).all()        
+    if len(answers) > 3:
         raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail='question has four answers')
-    new_answer = models.QuizAnswer(question_id=qid, **answer.dict())
+    true_answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid, models.QuizAnswer.correct == True).all()
+    if not true_answers:
+        answer['correct'] = True
+        print(answer)
+    new_answer = models.QuizAnswer(question_id=qid, **answer)
     db.add(new_answer)
     db.commit()
     db.refresh(new_answer)
