@@ -62,7 +62,7 @@ def update_quiz(id:int, updated_quiz:quiz.Quiz, db: Session = Depends(get_db), c
     return quiz_query.first()
 
 
-@router.post("/{id}/ques/", response_model=quiz.QuizQuestionResponse)
+@router.post("/ques", response_model=quiz.QuizQuestionResponse)
 def create_quiz_question(id: int, question: quiz.QuizQuestion, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
     if quiz == None:
@@ -76,7 +76,7 @@ def create_quiz_question(id: int, question: quiz.QuizQuestion, db: Session = Dep
     return new_question
 
 
-@router.get("/{id}/ques/", response_model=List[quiz.QuizQuestionResponse])
+@router.get("/ques", response_model=List[quiz.QuizQuestionResponse])
 def get_quiz_questions(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     questions = db.query(models.QuizQuestion).filter(models.QuizQuestion.quiz_id == id).all()
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
@@ -87,10 +87,10 @@ def get_quiz_questions(id: int, db: Session = Depends(get_db), current_user: int
     return questions
 
 
-@router.delete("/{id}/ques/{qid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_quiz_question(id: int, qid: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
+@router.delete("/ques/{qid}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_quiz_question(qid: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid)
+    quiz = db.query(models.Quiz).filter(models.Quiz.id == question.quiz_id).first()
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
     if not question.first():
@@ -102,10 +102,10 @@ def delete_quiz_question(id: int, qid: int, db: Session = Depends(get_db), curre
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.put("/{id}/ques/{qid}", response_model=quiz.QuizQuestionResponse)
+@router.put("/ques/{qid}", response_model=quiz.QuizQuestionResponse)
 def update_quiz_question(id: int, qid: int, updated_question: quiz.QuizQuestion, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()
     question_query = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid)
+    quiz = db.query(models.Quiz).filter(models.Quiz.id == question_query.first().quiz_id).first()
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
     if not question_query.first():
@@ -115,6 +115,7 @@ def update_quiz_question(id: int, qid: int, updated_question: quiz.QuizQuestion,
     question_query.update(updated_question.dict(), synchronize_session=False)
     db.commit()
     return question_query.first()
+
 
 @router.get("/{id}/ques/{qid}/an", response_model=List[quiz.AnswerResponse])
 def get_answers(id: int, qid: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
@@ -128,6 +129,7 @@ def get_answers(id: int, qid: int, db: Session = Depends(get_db), current_user: 
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid).all()
     return answers
+
 
 @router.post("/{id}/ques/{qid}/an", response_model=quiz.AnswerResponse)
 def create_answer(id: int, qid: int, answer: quiz.Answer, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
