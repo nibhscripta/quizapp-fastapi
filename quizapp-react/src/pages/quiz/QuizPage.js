@@ -20,7 +20,7 @@ const QuizPage = ({ apiUrl }) => {
       redirect: "follow",
     };
 
-    const res = await fetch(`${apiUrl}/quiz/${id}`, requestOptions);
+    const res = await fetch(`${apiUrl}/q/${id}`, requestOptions);
     const data = res.json();
     return data;
   };

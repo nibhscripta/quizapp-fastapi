@@ -13,10 +13,7 @@ const Anwer = ({ id, apiUrl, authToken, qid }) => {
       redirect: "follow",
     };
 
-    const res = await fetch(
-      `${apiUrl}/quiz/${id}/question/${qid}/answer`,
-      requestOptions
-    );
+    const res = await fetch(`${apiUrl}/ans/?qid=${qid}`, requestOptions);
     const data = res.json();
     return data;
   };

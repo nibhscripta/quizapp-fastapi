@@ -14,7 +14,7 @@ const Question = ({ id, apiUrl, authToken }) => {
       redirect: "follow",
     };
 
-    const res = await fetch(`${apiUrl}/quiz/${id}/question`, requestOptions);
+    const res = await fetch(`${apiUrl}/ques/?quiz_id=${id}`, requestOptions);
     const data = res.json();
     return data;
   };
