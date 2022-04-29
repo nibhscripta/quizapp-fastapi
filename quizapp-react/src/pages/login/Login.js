@@ -18,7 +18,6 @@ const Login = ({ apiUrl }) => {
     const data = await res.json();
     const authToken = `${data.token_type} ${data.access_token}`;
     localStorage.setItem("authorization", JSON.stringify(authToken));
-    console.log(JSON.parse(localStorage.getItem("authorization")));
   };
 
   const login = async (e) => {
