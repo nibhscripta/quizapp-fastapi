@@ -14,29 +14,25 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[quiz.AnswerResponse])
+@router.get("", response_model=List[quiz.AnswerResponse])
 def get_answers(qid: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     question = question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
     if not question:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question not found')
     quiz = db.query(models.Quiz).filter(models.Quiz.id == question.quiz_id).first()
-    if not quiz: 
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
     if quiz.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid).all()
     return answers
 
 
-@router.post("/", response_model=quiz.AnswerResponse)
+@router.post("", response_model=quiz.AnswerResponse)
 def create_answer(qid: int, answer: quiz.Answer, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     answer = answer.dict()
     question = question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
     if not question:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question not found')
     quiz = db.query(models.Quiz).filter(models.Quiz.id == question.quiz_id).first()
-    if not quiz: 
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
     if quiz.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid).all()        
@@ -59,11 +55,7 @@ def delete_quiz_answer(aid: int, db: Session = Depends(get_db), current_user: in
     if not answer.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer not found')
     question = question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == answer.first().question_id).first()
-    if not question:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question not found')
     quiz = db.query(models.Quiz).filter(models.Quiz.id == question.quiz_id).first()
-    if not quiz: 
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
     if quiz.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     answer.delete(synchronize_session=False)
@@ -78,11 +70,7 @@ def update_quiz_answer(aid: int, updated_answer: quiz.Answer, db: Session = Depe
     if not answer.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'answer not found')
     question = question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == answer.first().question_id).first()
-    if not question:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question not found')
     quiz = db.query(models.Quiz).filter(models.Quiz.id == question.quiz_id).first()
-    if not quiz: 
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
     if quiz.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     answer.update(updated_answer, synchronize_session=False)
