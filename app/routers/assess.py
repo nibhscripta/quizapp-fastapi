@@ -14,7 +14,7 @@ from ..schemas import assess
 
 
 router = APIRouter(
-    prefix='/assessment',
+    prefix='/a',
     tags=['Assessments']
 )
 
@@ -50,8 +50,8 @@ def start_assessment(id: int, instance: assess.QuizInstance, db: Session = Depen
     return new_instance
         
 
-@router.get("/{id}/question", response_model=List[assess.AssessmentQuestion])
-def get_quiz_questions(id: int, uid: Optional[str], db: Session = Depends(get_db)):
+@router.get("/{id}/q", response_model=List[assess.AssessmentQuestion])
+def get_quiz_questions(id: int, i: int, u: str, db: Session = Depends(get_db)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
@@ -60,13 +60,16 @@ def get_quiz_questions(id: int, uid: Optional[str], db: Session = Depends(get_db
     if quiz.due is not None:
         if not db.query(models.Quiz).filter(models.Quiz.id == id).filter(models.Quiz.due < datetime.now()).first():
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'{quiz.title} was due {quiz.due}')
+    instance = db.query(models.QuizInstance).filter(models.QuizInstance.id == i).first()
+    if not instance:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='instance not found')
+    if instance.user_id != u:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     questions = db.query(models.QuizQuestion).filter(models.QuizQuestion.quiz_id == id).all()
-    for i, question in enumerate(questions):
-        questions[i] = question.__dict__
     return questions
 
-@router.get("/{id}/question/{qid}/answers", response_model=List[assess.AssessmentAnswer])
-def get_quiz_question_answers(id: int, qid: int, uid: Optional[str], db: Session = Depends(get_db)):
+@router.get("/{id}/q/{qid}/ans", response_model=List[assess.AssessmentAnswer])
+def get_quiz_question_answers(id: int, qid: int, i: int, u: str, db: Session = Depends(get_db)):
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')

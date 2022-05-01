@@ -1,6 +1,8 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Optional, List
+from typing import Any, Optional, List
+
+from app.schemas import user
 
 class QuizInstance(BaseModel):
     username: str
@@ -21,6 +23,7 @@ class Assessment(BaseModel):
     id: int
     created_at: datetime
     owner_id: int
+    due: Any
     
     class Config:
         orm_mode = True 
@@ -29,6 +32,9 @@ class AssessmentQuestion(BaseModel):
     question: str
     id: int
     quiz_id: int
+    
+    class Config:
+        orm_mode = True 
     
 class AssessmentAnswer(BaseModel):
     answer: str
