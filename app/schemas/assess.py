@@ -52,6 +52,4 @@ class AssessmentResult(BaseModel):
     correct: bool
     
 class InstanceAnswer(BaseModel):
-    instance_id: int
     answer_id: int
-    user_id: str

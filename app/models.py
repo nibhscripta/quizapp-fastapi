@@ -70,5 +70,6 @@ class QuizInstanceAnswer(Base):
     answer_id = Column(Integer, nullable=False)
     correct_answer_id = Column(Integer, nullable=False)
     correct = Column(Boolean, server_default='FALSE', nullable=False)
+    question_id = Column(Integer, nullable=False)
     
     instance = relationship("QuizInstance")

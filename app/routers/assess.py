@@ -89,8 +89,11 @@ def get_quiz_question_answers(id: int, qid: int, i: int, u: str, db: Session = D
     answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid).all()
     return answers
 
-@router.post("/{id}/question/{qid}/instance", response_model=assess.InstanceAnswer)
-def post_instance_answer(id: int, qid: int, post_answer: assess.InstanceAnswer, db: Session = Depends(get_db)):
+@router.post("/{id}/question/{qid}/instance/{i}", response_model=assess.InstanceAnswer)
+def post_instance_answer(id: int, qid: int, i: int, u: str, post_answer: assess.InstanceAnswer, db: Session = Depends(get_db)):
+    instance_answer = db.query(models.QuizInstanceAnswer).filter(models.QuizInstanceAnswer.instance_id == i, models.QuizInstanceAnswer.answer_id == post_answer.answer_id).first()
+    if instance_answer:
+        raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="answer instance exists")
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
@@ -102,11 +105,11 @@ def post_instance_answer(id: int, qid: int, post_answer: assess.InstanceAnswer, 
     question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
     if not question:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {id} was not found')
-    instance = db.query(models.QuizInstance).filter(models.QuizInstance.id == post_answer.instance_id).first()
+    instance = db.query(models.QuizInstance).filter(models.QuizInstance.id == i).first()
     if not instance:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='instance not found')
-    if instance.user_id != post_answer.user_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this instance is not yours")
+    if instance.user_id != u:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == post_answer.answer_id).first()
     if not answer:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='answer does not exist')
@@ -117,14 +120,17 @@ def post_instance_answer(id: int, qid: int, post_answer: assess.InstanceAnswer, 
         correct_answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid, models.QuizAnswer.correct == True).first()
         correct_answer_id = correct_answer.id
         correct = False
-    instance_answer = models.QuizInstanceAnswer(instance_id=post_answer.instance_id, answer_id=post_answer.answer_id, correct_answer_id=correct_answer_id, correct=correct)
+    instance_answer = models.QuizInstanceAnswer(instance_id=i, answer_id=post_answer.answer_id, correct_answer_id=correct_answer_id, correct=correct)
     db.add(instance_answer)
     db.commit()
     return post_answer
 
 
-@router.put("/{id}/question/{qid}/instance", response_model=assess.InstanceAnswer)
-def update_instance_answer(id: int, qid: int, post_answer: assess.InstanceAnswer, db: Session = Depends(get_db)):
+@router.put("/{id}/question/{qid}/instance/{i}", response_model=assess.InstanceAnswer)
+def update_instance_answer(id: int, qid: int, i: int, u: str, post_answer: assess.InstanceAnswer, db: Session = Depends(get_db)):
+    instance_answer = db.query(models.QuizInstanceAnswer).filter(models.QuizInstanceAnswer.instance_id == i)
+    if not instance_answer.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='instance answer not found')
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
@@ -136,11 +142,11 @@ def update_instance_answer(id: int, qid: int, post_answer: assess.InstanceAnswer
     question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
     if not question:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {id} was not found')
-    instance = db.query(models.QuizInstance).filter(models.QuizInstance.id == post_answer.instance_id).first()
+    instance = db.query(models.QuizInstance).filter(models.QuizInstance.id == i).first()
     if not instance:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='instance not found')
-    if instance.user_id != post_answer.user_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this instance is not yours")
+    if instance.user_id != u:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == post_answer.answer_id).first()
     if not answer:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='answer does not exist')
@@ -151,9 +157,6 @@ def update_instance_answer(id: int, qid: int, post_answer: assess.InstanceAnswer
         correct_answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid, models.QuizAnswer.correct == True).first()
         correct_answer_id = correct_answer.id
         correct = False
-    instance_answer = db.query(models.QuizInstanceAnswer).filter(models.QuizInstanceAnswer.instance_id == post_answer.instance_id)
-    if not instance_answer.first():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='instance does not exist')
     instance_answer.update(post_answer.dict(), correct_answer_id, correct, synchronize_session=False)
     db.commit()
     return post_answer
