@@ -47,7 +47,7 @@ class AssessmentAnswer(BaseModel):
   
 class AssessmentResult(BaseModel):  
     question: str
-    posted_answer: str
+    posted_answer: Optional[str]
     correct_answer: str
     correct: bool
     

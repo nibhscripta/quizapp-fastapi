@@ -48,6 +48,43 @@ def start_assessment(id: int, instance: assess.QuizInstance, db: Session = Depen
     db.commit()
     db.refresh(new_instance)
     return new_instance
+
+@router.post("/{id}/submit", response_model=List[assess.AssessmentResult])
+def submit_assessment(id: int, i: int, u: str, db: Session = Depends(get_db)):
+    instance = db.query(models.QuizInstance).filter(models.QuizInstance.id == i).first()
+    if not instance:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='instance not found')
+    if instance.user_id != u:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
+    if instance.complete:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='assessment already submitted')
+    quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
+    if not quiz:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz with id {id} was not found')
+    if not quiz.public:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="this quiz is not public")
+    if quiz.due is not None:
+        if not db.query(models.Quiz).filter(models.Quiz.id == id).filter(models.Quiz.due < datetime.now()).first():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'{quiz.title} was due {quiz.due}')
+    results = []
+    questions = db.query(models.QuizQuestion).filter(models.QuizQuestion.quiz_id == id).all()
+    for question in questions:
+        question_result = {}
+        question_result['question'] = question.question
+        instance_answer = db.query(models.QuizInstanceAnswer).filter(models.QuizInstanceAnswer.instance_id == i, models.QuizInstanceAnswer.question_id == question.id).first()
+        if instance_answer:
+            question_result['correct'] = instance_answer.correct
+            question_result['posted_answer'] = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == instance_answer.answer_id).first().answer
+            question_result['correct_answer'] = db.query(models.QuizAnswer).filter(models.QuizAnswer.id == instance_answer.correct_answer_id).first().answer
+        else:
+            question_result['correct'] = False
+            question_result['posted_answer'] = None
+            question_result['correct_answer'] = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == question.id, models.QuizAnswer.correct == True).first().answer
+        results.append(question_result)
+    instance = db.query(models.QuizInstance).filter(models.QuizInstance.id == i)
+    instance.update({'complete':True}, synchronize_session=False)
+    db.commit()
+    return results
         
 
 @router.get("/{id}/q", response_model=List[assess.AssessmentQuestion])
@@ -150,7 +187,6 @@ def update_instance_answer(id: int, qid: int, i: int, u: str, post_answer: asses
     if answer.correct:
         correct = True
     else:
-        correct_answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid, models.QuizAnswer.correct == True).first()
         correct = False
     updated_answer = {
         'answer_id': post_answer.answer_id,
