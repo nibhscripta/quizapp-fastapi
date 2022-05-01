@@ -89,9 +89,9 @@ def get_quiz_question_answers(id: int, qid: int, i: int, u: str, db: Session = D
     answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid).all()
     return answers
 
-@router.post("/{id}/question/{qid}/instance/{i}", response_model=assess.InstanceAnswer)
+@router.post("/{id}/q/{qid}/i/{i}", response_model=assess.InstanceAnswer)
 def post_instance_answer(id: int, qid: int, i: int, u: str, post_answer: assess.InstanceAnswer, db: Session = Depends(get_db)):
-    instance_answer = db.query(models.QuizInstanceAnswer).filter(models.QuizInstanceAnswer.instance_id == i, models.QuizInstanceAnswer.answer_id == post_answer.answer_id).first()
+    instance_answer = db.query(models.QuizInstanceAnswer).filter(models.QuizInstanceAnswer.instance_id == i, models.QuizInstanceAnswer.question_id == qid).first()
     if instance_answer:
         raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="answer instance exists")
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
@@ -120,15 +120,15 @@ def post_instance_answer(id: int, qid: int, i: int, u: str, post_answer: assess.
         correct_answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid, models.QuizAnswer.correct == True).first()
         correct_answer_id = correct_answer.id
         correct = False
-    instance_answer = models.QuizInstanceAnswer(instance_id=i, answer_id=post_answer.answer_id, correct_answer_id=correct_answer_id, correct=correct)
+    instance_answer = models.QuizInstanceAnswer(question_id=qid, instance_id=i, answer_id=post_answer.answer_id, correct_answer_id=correct_answer_id, correct=correct)
     db.add(instance_answer)
     db.commit()
     return post_answer
 
 
-@router.put("/{id}/question/{qid}/instance/{i}", response_model=assess.InstanceAnswer)
+@router.put("/{id}/q/{qid}/i/{i}", response_model=assess.InstanceAnswer)
 def update_instance_answer(id: int, qid: int, i: int, u: str, post_answer: assess.InstanceAnswer, db: Session = Depends(get_db)):
-    instance_answer = db.query(models.QuizInstanceAnswer).filter(models.QuizInstanceAnswer.instance_id == i)
+    instance_answer = db.query(models.QuizInstanceAnswer).filter(models.QuizInstanceAnswer.question_id == qid)
     if not instance_answer.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='instance answer not found')
     quiz = db.query(models.Quiz).filter(models.Quiz.id == id).first()  
@@ -139,9 +139,6 @@ def update_instance_answer(id: int, qid: int, i: int, u: str, post_answer: asses
     if quiz.due is not None:
         if not db.query(models.Quiz).filter(models.Quiz.id == id).filter(models.Quiz.due < datetime.now()).first():
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'{quiz.title} was due {quiz.due}')
-    question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
-    if not question:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {id} was not found')
     instance = db.query(models.QuizInstance).filter(models.QuizInstance.id == i).first()
     if not instance:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='instance not found')
@@ -151,12 +148,14 @@ def update_instance_answer(id: int, qid: int, i: int, u: str, post_answer: asses
     if not answer:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='answer does not exist')
     if answer.correct:
-        correct_answer_id = post_answer.answer_id
         correct = True
     else:
         correct_answer = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid, models.QuizAnswer.correct == True).first()
-        correct_answer_id = correct_answer.id
         correct = False
-    instance_answer.update(post_answer.dict(), correct_answer_id, correct, synchronize_session=False)
+    updated_answer = {
+        'answer_id': post_answer.answer_id,
+        'correct': correct
+    }
+    instance_answer.update(updated_answer, synchronize_session=False)
     db.commit()
     return post_answer
