@@ -40,6 +40,9 @@ class AssessmentAnswer(BaseModel):
     answer: str
     id: int
     question_id: int
+    
+    class Config:
+        orm_mode = True
 
   
 class AssessmentResult(BaseModel):  

@@ -81,9 +81,12 @@ def get_quiz_question_answers(id: int, qid: int, i: int, u: str, db: Session = D
     question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == qid).first()
     if not question:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'question with id {id} was not found')
+    instance = db.query(models.QuizInstance).filter(models.QuizInstance.id == i).first()
+    if not instance:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='instance not found')
+    if instance.user_id != u:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     answers = db.query(models.QuizAnswer).filter(models.QuizAnswer.question_id == qid).all()
-    for i, answer in enumerate(answers):
-        answers[i] = answer.__dict__
     return answers
 
 @router.post("/{id}/question/{qid}/instance", response_model=assess.InstanceAnswer)
