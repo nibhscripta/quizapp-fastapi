@@ -1,11 +1,13 @@
-const CreateQuiz = ({ toggleForm }) => {
+import postQuiz from "./PostQuiz";
+
+const CreateQuiz = ({ toggleForm, addQuiz }) => {
   const newQuiz = (e) => {
     e.preventDefault();
     const t = e.target;
     const title = t.title.value;
     const content = t.content.value;
     const quizPublic = t.public.checked;
-    console.log(title, content, quizPublic);
+    postQuiz(title, content, quizPublic).then((quiz) => addQuiz(quiz));
     toggleForm();
   };
 
