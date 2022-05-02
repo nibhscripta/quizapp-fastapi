@@ -20,8 +20,12 @@ const postQuiz = async (title, content, quizPublic) => {
   };
 
   const res = await fetch(`${apiUrl}/q`, requestOptions);
-  const data = res.json();
-  return data;
+  if (res.status === 201) {
+    const data = res.json();
+    return data;
+  } else {
+    console.log(res.status);
+  }
 };
 
 export default postQuiz;

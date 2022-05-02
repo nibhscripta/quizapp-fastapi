@@ -1,4 +1,4 @@
-.quiz-link {
+.quiz-link a {
   display: flex;
   flex-flow: row nowrap;
   gap: 10px;
@@ -6,6 +6,16 @@
   border-bottom: 1px solid #999;
   width: fit-content;
 }
+.quiz-link {
+  display: flex;
+  flex-flow: row nowrap;
+}
 .quiz-link:hover {
   background-color: #c8c8c8;
+}
+.delete-btn {
+  display: none;
+}
+.quiz-link:hover .delete-btn {
+  display: flex;
 }

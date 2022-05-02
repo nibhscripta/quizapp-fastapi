@@ -2,7 +2,6 @@ import "./quiz.css";
 import fetchQuizList from "./FetchQuizList";
 import QuizLink from "./QuizLink";
 import CreateQuiz from "./CreateQuiz";
-import postQuiz from "./PostQuiz";
 
 import { useState, useEffect } from "react";
 
@@ -24,6 +23,10 @@ const QuizPage = () => {
     setQuizList([...quizList, newQuiz]);
   };
 
+  const deleteQuizState = (id) => {
+    setQuizList(quizList.filter((quiz) => quiz.id !== id));
+  };
+
   return (
     <div className="quiz-container">
       <h1>Quizzes</h1>
@@ -34,7 +37,7 @@ const QuizPage = () => {
       )}
 
       {quizList.map((quiz) => (
-        <QuizLink key={quiz.id} quiz={quiz} />
+        <QuizLink key={quiz.id} quiz={quiz} deleteQuizState={deleteQuizState} />
       ))}
     </div>
   );
