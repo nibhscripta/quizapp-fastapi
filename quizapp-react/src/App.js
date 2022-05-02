@@ -1,21 +1,26 @@
-import Login from "./pages/login/Login";
-import Home from "./pages/home/Home";
-import Quiz from "./pages/quiz/Quiz";
-import QuizPage from "./pages/quiz/QuizPage";
-
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-function App() {
-  const apiUrl = "http://127.0.0.1:8000";
+import Home from "./components/home/Home";
+import Login from "./components/login/LoginPage";
+import QuizPage from "./components/quizdash/QuizDashPage";
+import PrivateRoute from "./utils/PrivateRoute";
 
+function App() {
   return (
     <div className="App">
       <Router>
         <Routes>
           <Route path="/" exact element={<Home />} />
-          <Route path="/login" exact element={<Login apiUrl={apiUrl} />} />
-          <Route path="/quiz" exact element={<Quiz apiUrl={apiUrl} />} />
-          <Route path="/quiz/:id" element={<QuizPage apiUrl={apiUrl} />} />
+          <Route path="/login" exact element={<Login />} />
+          <Route
+            path="/q"
+            exact
+            element={
+              <PrivateRoute>
+                <QuizPage />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Router>
     </div>
