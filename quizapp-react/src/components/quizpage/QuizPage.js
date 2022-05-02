@@ -19,9 +19,6 @@ const QuizPage = () => {
     getQuiz();
   }, []);
 
-  const updateQuiz = (newQuiz) => {
-    setQuiz(newQuiz);
-  };
   return (
     <div>
       <div className="quiz-info">
