@@ -1,6 +1,7 @@
 import fetchQuiz from "./FetchQuiz";
 import QuizInfo from "./QuizInfo";
 import fetchQuestionList from "./FetchQuestionList";
+import CreateQuestion from "./CreateQuestion";
 import "./quiz.css";
 
 import { QuizQuestion } from "../quizques/QuizQuestion";
@@ -33,15 +34,30 @@ const QuizPage = () => {
     getQuestionList();
   }, [id]);
 
+  const addQuestion = (newQuestion) => {
+    setQuestionList([...questionList, newQuestion]);
+  };
+
+  const [questionForm, toggleQuestionForm] = useState(false);
+
   return (
     <div>
       <div className="quiz-info">
         <Link to="/q">Back</Link>
         {quiz && <QuizInfo quiz={quiz} setQuiz={setQuiz} />}
-        {questionList.map((question) => (
-          <QuizQuestion key={question.id} question={question} />
-        ))}
       </div>
+      {questionForm ? (
+        <CreateQuestion
+          addQuestion={addQuestion}
+          toggleQuestionForm={toggleQuestionForm}
+          id={id}
+        />
+      ) : (
+        <button onClick={toggleQuestionForm}>Create Question</button>
+      )}
+      {questionList.map((question) => (
+        <QuizQuestion key={question.id} question={question} />
+      ))}
     </div>
   );
 };
