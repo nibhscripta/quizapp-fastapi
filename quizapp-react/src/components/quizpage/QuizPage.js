@@ -1,5 +1,6 @@
 import fetchQuiz from "./FetchQuiz";
 import QuizInfo from "./QuizInfo";
+import "./quiz.css";
 
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -17,10 +18,16 @@ const QuizPage = () => {
 
     getQuiz();
   }, []);
+
+  const updateQuiz = (newQuiz) => {
+    setQuiz(newQuiz);
+  };
   return (
     <div>
-      <Link to="/q">Back</Link>
-      {quiz && <QuizInfo quiz={quiz} />}
+      <div className="quiz-info">
+        <Link to="/q">Back</Link>
+        {quiz && <QuizInfo quiz={quiz} setQuiz={setQuiz} />}
+      </div>
     </div>
   );
 };
