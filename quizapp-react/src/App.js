@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import Home from "./components/home/Home";
 import Login from "./components/login/LoginPage";
-import QuizPage from "./components/quizdash/QuizDashPage";
+import QuizDash from "./components/quizdash/QuizDashPage";
+import QuizPage from "./components/quizpage/QuizPage";
 import PrivateRoute from "./utils/PrivateRoute";
 
 function App() {
@@ -14,6 +15,15 @@ function App() {
           <Route path="/login" exact element={<Login />} />
           <Route
             path="/q"
+            exact
+            element={
+              <PrivateRoute>
+                <QuizDash />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/q/:id"
             exact
             element={
               <PrivateRoute>

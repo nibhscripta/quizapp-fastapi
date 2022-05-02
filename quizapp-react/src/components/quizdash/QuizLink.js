@@ -3,10 +3,14 @@ import { Link } from "react-router-dom";
 import DeleteBtn from "./DeleteBtn";
 
 const QuizLink = ({ quiz, deleteQuizState }) => {
-  const quizLink = `/q/${quiz.id}`;
   return (
     <div className="quiz-link">
-      <Link to={quizLink}>
+      <Link
+        to={{
+          pathname: `/q/${quiz.id}`,
+          state: { quiz: quiz },
+        }}
+      >
         <h1>{quiz.title}</h1>
         <p>{quiz.content}</p>
         <p>{quiz.public ? "Public" : "Private"}</p>

@@ -5,7 +5,7 @@ import CreateQuiz from "./CreateQuiz";
 
 import { useState, useEffect } from "react";
 
-const QuizPage = () => {
+const QuizDash = () => {
   const [quizList, setQuizList] = useState([]);
 
   useEffect(() => {
@@ -43,4 +43,4 @@ const QuizPage = () => {
   );
 };
 
-export default QuizPage;
+export default QuizDash;
