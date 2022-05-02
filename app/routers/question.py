@@ -33,8 +33,6 @@ def get_quiz_questions(quiz_id: int, db: Session = Depends(get_db), current_user
     quiz = db.query(models.Quiz).filter(models.Quiz.id == quiz_id).first()
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
-    if not questions:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'quiz not found')
     if quiz.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='unauthorized')
     return questions
