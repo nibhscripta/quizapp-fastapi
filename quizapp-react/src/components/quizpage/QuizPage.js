@@ -4,6 +4,7 @@ import fetchQuestionList from "./FetchQuestionList";
 import CreateQuestion from "./CreateQuestion";
 import "./quiz.css";
 
+import deleteQuestion from "../quizques/DeleteQuestion";
 import { QuizQuestion } from "../quizques/QuizQuestion";
 
 import { useParams, Link } from "react-router-dom";
@@ -40,6 +41,13 @@ const QuizPage = () => {
 
   const [questionForm, toggleQuestionForm] = useState(false);
 
+  const deleteQuestionState = (questionId) => {
+    deleteQuestion(questionId);
+    setQuestionList(
+      questionList.filter((question) => question.id !== questionId)
+    );
+  };
+
   return (
     <div>
       <div className="quiz-info">
@@ -56,7 +64,11 @@ const QuizPage = () => {
         <button onClick={toggleQuestionForm}>Create Question</button>
       )}
       {questionList.map((question) => (
-        <QuizQuestion key={question.id} question={question} />
+        <QuizQuestion
+          key={question.id}
+          question={question}
+          deleteQuestionState={deleteQuestionState}
+        />
       ))}
     </div>
   );
