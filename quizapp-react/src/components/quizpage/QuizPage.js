@@ -4,6 +4,7 @@ import fetchQuestionList from "./FetchQuestionList";
 import CreateQuestion from "./CreateQuestion";
 import "./quiz.css";
 
+import putQuestion from "../quizques/PutQuestion";
 import deleteQuestion from "../quizques/DeleteQuestion";
 import { QuizQuestion } from "../quizques/QuizQuestion";
 
@@ -48,6 +49,20 @@ const QuizPage = () => {
     );
   };
 
+  const updateQuestionState = (questionId, updatedQuestion) => {
+    const updateQuestion = async () => {
+      const apiRes = await putQuestion(updatedQuestion, questionId);
+
+      setQuestionList(
+        questionList.map((question) =>
+          question.id === questionId ? { ...apiRes } : question
+        )
+      );
+    };
+
+    updateQuestion();
+  };
+
   return (
     <div>
       <div className="quiz-info">
@@ -68,6 +83,7 @@ const QuizPage = () => {
           key={question.id}
           question={question}
           deleteQuestionState={deleteQuestionState}
+          updateQuestionState={updateQuestionState}
         />
       ))}
     </div>
