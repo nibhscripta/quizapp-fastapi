@@ -78,14 +78,16 @@ const QuizPage = () => {
       ) : (
         <button onClick={toggleQuestionForm}>Create Question</button>
       )}
-      {questionList.map((question) => (
-        <QuizQuestion
-          key={question.id}
-          question={question}
-          deleteQuestionState={deleteQuestionState}
-          updateQuestionState={updateQuestionState}
-        />
-      ))}
+      <div className="question-list">
+        {questionList.map((question) => (
+          <QuizQuestion
+            key={question.id}
+            question={question}
+            deleteQuestionState={deleteQuestionState}
+            updateQuestionState={updateQuestionState}
+          />
+        ))}
+      </div>
     </div>
   );
 };
