@@ -1,8 +1,8 @@
 import apiUrl from "../../utils/ApiUrl";
 
-const authToken = JSON.parse(localStorage.getItem("authToken"));
-
 const fetchQuizList = async () => {
+  const authToken = JSON.parse(localStorage.getItem("authToken"));
+
   let myHeaders = new Headers();
   myHeaders.append("Authorization", authToken);
 
@@ -13,8 +13,13 @@ const fetchQuizList = async () => {
   };
 
   const res = await fetch(`${apiUrl}/q`, requestOptions);
-  const data = res.json();
-  return data;
+
+  if (res.status === 200) {
+    const data = res.json();
+    return data;
+  } else {
+    console.log(res.status);
+  }
 };
 
 export default fetchQuizList;

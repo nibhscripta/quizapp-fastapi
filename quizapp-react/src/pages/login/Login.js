@@ -1,8 +1,12 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Navigate } from "react-router-dom";
 
 import "./login.css";
+import LoginForm from "./LoginForm";
 
 const Login = ({ apiUrl }) => {
+  const [authenticated, setAuthenticated] = useState(false);
+
   const getJWT = async (username, passord, apiUrl) => {
     let loginHeaders = new Headers();
     let formdata = new FormData();
@@ -15,9 +19,13 @@ const Login = ({ apiUrl }) => {
       redirect: "follow",
     };
     const res = await fetch(`${apiUrl}/login`, requestOptions);
-    const data = await res.json();
-    const authToken = `${data.token_type} ${data.access_token}`;
-    localStorage.setItem("authorization", JSON.stringify(authToken));
+    if (res.status === 200) {
+      const data = await res.json();
+      const authToken = `${data.token_type} ${data.access_token}`;
+      // localStorage.setItem("authorization", JSON.stringify(authToken));
+    } else {
+      console.log(res.status);
+    }
   };
 
   const login = async (e) => {
@@ -28,16 +36,7 @@ const Login = ({ apiUrl }) => {
     e.target.password.value = "";
   };
 
-  return (
-    <div className="login-page-container">
-      <form onSubmit={(e) => login(e)}>
-        <Link to="/">Home</Link>
-        <input type="text" name="username" placeholder="Username" />
-        <input type="password" name="password" placeholder="Password" />
-        <button type="submit">Login</button>
-      </form>
-    </div>
-  );
+  return authenticated ? <Navigate to="/login" /> : <LoginForm login={login} />;
 };
 
 export default Login;

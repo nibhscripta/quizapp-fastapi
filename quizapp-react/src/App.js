@@ -4,6 +4,7 @@ import Home from "./components/home/Home";
 import Login from "./components/login/LoginPage";
 import QuizDash from "./components/quizdash/QuizDashPage";
 import QuizPage from "./components/quizpage/QuizPage";
+import Assessment from "./components/assessment/Assessment";
 import PrivateRoute from "./utils/PrivateRoute";
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route path="/a/:id" exact element={<Assessment />} />
         </Routes>
       </Router>
     </div>
