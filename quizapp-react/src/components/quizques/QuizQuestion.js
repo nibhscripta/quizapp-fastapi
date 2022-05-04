@@ -2,6 +2,8 @@ import DeleteQuestionBtn from "./DeleteQuestionBtn";
 
 import fetchAnswerList from "../quizans/FetchAnswerList";
 import QuizAnswer from "../quizans/QuizAnswer";
+import CreateAnswer from "../quizans/CreateAnswer";
+import postAnswer from "../quizans/PostAnswer";
 
 import { useState, useEffect } from "react";
 
@@ -16,7 +18,7 @@ export const QuizQuestion = ({
     updateQuestionState(question.id, newQuestion);
   };
 
-  const [asnwerList, setAnswerList] = useState([]);
+  const [answerList, setAnswerList] = useState([]);
 
   useEffect(() => {
     const getAnswerList = async () => {
@@ -26,6 +28,18 @@ export const QuizQuestion = ({
 
     getAnswerList();
   }, [question]);
+
+  const [answerForm, toggleAnswerForm] = useState(false);
+
+  const addAnswer = (answer, correct) => {
+    const createAnswer = async () => {
+      const apiRes = await postAnswer(answer, correct, question.id);
+      setAnswerList([...answerList, apiRes]);
+    };
+
+    createAnswer();
+    toggleAnswerForm();
+  };
 
   return (
     <div className="question">
@@ -38,8 +52,13 @@ export const QuizQuestion = ({
         deleteQuestionState={deleteQuestionState}
         id={question.id}
       />
+      {!answerForm ? (
+        <button onClick={toggleAnswerForm}>Create Answer</button>
+      ) : (
+        <CreateAnswer addAnswer={addAnswer} />
+      )}
       <h2>Answers:</h2>
-      {asnwerList.map((answer) => (
+      {answerList.map((answer) => (
         <QuizAnswer key={answer.id} answer={answer} />
       ))}
     </div>
