@@ -26,8 +26,3 @@ app.include_router(quiz.router)
 app.include_router(assess.router)
 app.include_router(question.router)
 app.include_router(answer.router)
-
-
-@app.get("/")
-def root():
-    return {"message": "Quiz!"}
