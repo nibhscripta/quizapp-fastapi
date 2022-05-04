@@ -5,6 +5,7 @@ import QuizAnswer from "../quizans/QuizAnswer";
 import CreateAnswer from "../quizans/CreateAnswer";
 import postAnswer from "../quizans/PostAnswer";
 import putAnswer from "../quizans/PutAnswer";
+import deleteAnswer from "../quizans/DeleteAnswer";
 
 import { useState, useEffect } from "react";
 
@@ -56,6 +57,11 @@ export const QuizQuestion = ({
     updateAnswer();
   };
 
+  const deleteAnswerState = (answerId) => {
+    deleteAnswer(answerId);
+    setAnswerList(answerList.filter((answer) => answer.id !== answerId));
+  };
+
   return (
     <div className="question">
       <h1>Question:</h1>
@@ -78,6 +84,7 @@ export const QuizQuestion = ({
           key={answer.id}
           answer={answer}
           updateAnswerState={updateAnswerState}
+          deleteAnswerState={deleteAnswerState}
         />
       ))}
     </div>

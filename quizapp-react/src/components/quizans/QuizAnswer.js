@@ -1,4 +1,6 @@
-const QuizAnswer = ({ answer, updateAnswerState }) => {
+import DeleteAnswerBtn from "./DeleteAnswerbtn";
+
+const QuizAnswer = ({ answer, updateAnswerState, deleteAnswerState }) => {
   const answerId = answer.id;
 
   const onSubmitAnswer = (e) => {
@@ -10,17 +12,20 @@ const QuizAnswer = ({ answer, updateAnswerState }) => {
   };
 
   return (
-    <form onSubmit={(e) => onSubmitAnswer(e)}>
-      <input type="text" name="answer" defaultValue={answer.answer} />
-      <label htmlFor={`correct${answer.id}`}>Correct</label>
-      <input
-        type="checkbox"
-        name="correct"
-        id={`correct${answer.id}`}
-        defaultChecked={answer.correct}
-      />
-      <input type="submit" value="Save Answer" />
-    </form>
+    <div>
+      <form onSubmit={(e) => onSubmitAnswer(e)}>
+        <input type="text" name="answer" defaultValue={answer.answer} />
+        <label htmlFor={`correct${answer.id}`}>Correct</label>
+        <input
+          type="checkbox"
+          name="correct"
+          id={`correct${answer.id}`}
+          defaultChecked={answer.correct}
+        />
+        <input type="submit" value="Save Answer" />
+      </form>
+      <DeleteAnswerBtn deleteAnswerState={deleteAnswerState} id={answer.id} />
+    </div>
   );
 };
 
