@@ -4,6 +4,7 @@ import fetchAnswerList from "../quizans/FetchAnswerList";
 import QuizAnswer from "../quizans/QuizAnswer";
 import CreateAnswer from "../quizans/CreateAnswer";
 import postAnswer from "../quizans/PostAnswer";
+import putAnswer from "../quizans/PutAnswer";
 
 import { useState, useEffect } from "react";
 
@@ -41,6 +42,20 @@ export const QuizQuestion = ({
     toggleAnswerForm();
   };
 
+  const updateAnswerState = (updatedAnswer, updatedCorrect, answerId) => {
+    const updateAnswer = async () => {
+      const apiRes = await putAnswer(updatedAnswer, updatedCorrect, answerId);
+
+      setAnswerList(
+        answerList.map((answer) =>
+          answer.id === answerId ? { ...apiRes } : answer
+        )
+      );
+    };
+
+    updateAnswer();
+  };
+
   return (
     <div className="question">
       <h1>Question:</h1>
@@ -59,7 +74,11 @@ export const QuizQuestion = ({
       )}
       <h2>Answers:</h2>
       {answerList.map((answer) => (
-        <QuizAnswer key={answer.id} answer={answer} />
+        <QuizAnswer
+          key={answer.id}
+          answer={answer}
+          updateAnswerState={updateAnswerState}
+        />
       ))}
     </div>
   );
