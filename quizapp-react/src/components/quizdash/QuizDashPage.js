@@ -2,6 +2,7 @@ import "./quiz.css";
 import fetchQuizList from "./FetchQuizList";
 import QuizLink from "./QuizLink";
 import CreateQuiz from "./CreateQuiz";
+import Logout from "../login/Logout";
 
 import { useState, useEffect } from "react";
 
@@ -30,6 +31,7 @@ const QuizDash = () => {
   return (
     <div className="quiz-container">
       <h1>Quizzes</h1>
+      <Logout />
       {quizForm ? (
         <CreateQuiz toggleForm={toggleQuizForm} addQuiz={addQuiz} />
       ) : (
