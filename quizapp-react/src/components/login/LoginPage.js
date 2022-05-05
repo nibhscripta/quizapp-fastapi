@@ -2,6 +2,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 
 import FetchAuthToken from "./FetchAuthToken";
 import LoginForm from "./LoginForm";
+import "./login.css";
 
 const Login = () => {
   let authToken = localStorage.getItem("authToken");
