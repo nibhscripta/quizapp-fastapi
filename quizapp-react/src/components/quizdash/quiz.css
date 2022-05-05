@@ -1,14 +1,95 @@
-.quiz-link a {
+.quiz-container {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  align-items: left;
+  flex-flow: column nowrap;
+  gap: 15px;
+}
+.create-quiz-form {
+  margin-top: 40px;
+}
+.create-quiz-form button,
+.create-quiz-form form button {
+  border: 1px #999 solid;
+  background-color: #e8e8e8;
+  outline: none;
+  transition: all ease-in-out 50ms;
+  border-radius: 0;
+  cursor: pointer;
+  padding: 3px;
+  width: fit-content;
+}
+.create-quiz-form button:hover,
+.create-quiz-form button:focus,
+.create-quiz-form form button:hover,
+.create-quiz-form form button:focus {
+  border: 1px #000 solid;
+  background-color: #d8d8d8;
+}
+.create-quiz-form form {
+  display: flex;
+  justify-content: left;
+  flex-flow: column;
+  gap: 15px;
+}
+.create-quiz-form form input {
+  border: none;
+  border-bottom: #999 solid 1px;
+  outline: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 5px;
+}
+.create-quiz-form form input:focus {
+  border-bottom: #000 solid 1px;
+}
+.create-quiz-form form .quiz-public {
   display: flex;
   flex-flow: row nowrap;
   gap: 10px;
+  align-items: center;
+}
+.create-quiz-form form .quiz-public input {
+  display: none;
+}
+.create-quiz-form form .quiz-public label {
+  cursor: pointer;
+  border: 1px solid #999;
+  padding: 3px;
+}
+.create-quiz-form form .quiz-public input:checked ~ label {
+  background-color: green;
+}
+
+.quiz-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.quiz-link a {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
   padding: 5px;
-  border-bottom: 1px solid #999;
   width: fit-content;
+  color: #000;
+  text-decoration: none;
+  width: 100%;
+}
+.quiz-link a h1,
+.quiz-link a p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.quiz-link a p {
+  color: #555;
 }
 .quiz-link {
-  display: flex;
-  flex-flow: row nowrap;
+  display: grid;
+  grid-template-columns: 1fr 95px;
+  border: 1px solid #999;
+  padding: 10px 5px 10px 10px;
 }
 .quiz-link:hover {
   background-color: #c8c8c8;
@@ -18,4 +99,35 @@
 }
 .quiz-link:hover .delete-btn {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+}
+.quiz-link:hover .delete-btn button {
+  border: 1px #999 solid;
+  outline: none;
+  transition: all ease-in-out 50ms;
+  border-radius: 0;
+  cursor: pointer;
+  padding: 3px;
+  width: fit-content;
+  width: 100%;
+}
+.quiz-link:hover .delete-btn button:hover:last-child {
+  background-color: red;
+}
+
+.logout-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #444;
+  transition: all ease-in-out 50ms;
+}
+.logout-btn:hover {
+  color: #000;
+  text-decoration: underline;
 }

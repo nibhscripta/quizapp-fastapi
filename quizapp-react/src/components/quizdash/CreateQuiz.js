@@ -16,9 +16,13 @@ const CreateQuiz = ({ toggleForm, addQuiz }) => {
       <h1>New Quiz</h1>
       <input type="text" name="title" placeholder="Title" />
       <input type="text" name="content" placeholder="Content" />
-      <label htmlFor="public">Public</label>
-      <input type="checkbox" name="public" id="public" value="public" />
-      <input type="submit" value="Create" />
+      <div className="quiz-public">
+        <input type="checkbox" name="public" id="public" value="public" />
+        <label htmlFor="public">Public</label>
+      </div>
+      <button type="submit" value="Create">
+        Create
+      </button>
     </form>
   );
 };

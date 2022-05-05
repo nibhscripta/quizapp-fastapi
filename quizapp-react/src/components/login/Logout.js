@@ -8,7 +8,11 @@ const Logout = () => {
     navigate("/login");
   };
 
-  return <button onClick={logout}>Logout</button>;
+  return (
+    <button onClick={logout} tabIndex="-1" className="logout-btn">
+      Logout
+    </button>
+  );
 };
 
 export default Logout;

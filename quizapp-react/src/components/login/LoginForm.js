@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 const LoginForm = ({ onSubmit }) => {
+  document.querySelector("title").innerText = "Quiz! - Login";
   return (
     <div className="login-page-container">
       <form onSubmit={(e) => onSubmit(e)}>

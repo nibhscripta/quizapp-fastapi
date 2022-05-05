@@ -7,6 +7,8 @@ import Logout from "../login/Logout";
 import { useState, useEffect } from "react";
 
 const QuizDash = () => {
+  document.querySelector("title").innerText = "Quiz! - Dashboard";
+
   const [quizList, setQuizList] = useState([]);
 
   useEffect(() => {
@@ -30,17 +32,23 @@ const QuizDash = () => {
 
   return (
     <div className="quiz-container">
-      <h1>Quizzes</h1>
       <Logout />
-      {quizForm ? (
-        <CreateQuiz toggleForm={toggleQuizForm} addQuiz={addQuiz} />
-      ) : (
-        <button onClick={toggleQuizForm}>Create Quiz</button>
-      )}
-
-      {quizList.map((quiz) => (
-        <QuizLink key={quiz.id} quiz={quiz} deleteQuizState={deleteQuizState} />
-      ))}
+      <div className="create-quiz-form">
+        {quizForm ? (
+          <CreateQuiz toggleForm={toggleQuizForm} addQuiz={addQuiz} />
+        ) : (
+          <button onClick={toggleQuizForm}>Create Quiz</button>
+        )}
+      </div>
+      <div className="quiz-list">
+        {quizList.map((quiz) => (
+          <QuizLink
+            key={quiz.id}
+            quiz={quiz}
+            deleteQuizState={deleteQuizState}
+          />
+        ))}
+      </div>
     </div>
   );
 };

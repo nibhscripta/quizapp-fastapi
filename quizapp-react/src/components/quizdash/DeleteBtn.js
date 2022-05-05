@@ -18,10 +18,10 @@ const DeleteBtn = ({ quizId, deleteQuizState }) => {
     <div className="delete-btn">
       {!confirm && <button onClick={toggleConfirm}>Delete</button>}
       {confirm && (
-        <div>
+        <>
           <button onClick={cancel}>Cancel</button>
           <button onClick={delQuiz}>Confirm</button>
-        </div>
+        </>
       )}
     </div>
   );
