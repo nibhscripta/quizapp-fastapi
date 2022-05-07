@@ -63,8 +63,12 @@ const QuizPage = () => {
     updateQuestion();
   };
 
+  if (quiz) {
+    document.querySelector("title").innerText = `Quiz! - ${quiz.title}`;
+  }
+
   return (
-    <div>
+    <div className="quiz-page-container">
       <div className="quiz-info">
         <Link to="/q">Back</Link>
         {quiz && <QuizInfo quiz={quiz} setQuiz={setQuiz} />}

@@ -1,5 +1,4 @@
 .quiz-info {
-  border-bottom: 1px #999 solid;
   margin-bottom: 20px;
 }
 
@@ -11,4 +10,70 @@
 
 .question {
   border-bottom: #999 1px solid;
+}
+
+.quiz-page-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+.update-quiz-form {
+  margin-top: 20px;
+}
+.update-quiz-form button,
+.update-quiz-form form button {
+  border: 1px #999 solid;
+  background-color: #e8e8e8;
+  outline: none;
+  transition: all ease-in-out 50ms;
+  border-radius: 0;
+  cursor: pointer;
+  padding: 3px;
+  width: fit-content;
+}
+.update-quiz-form button:hover,
+.update-quiz-form button:focus,
+.update-quiz-form form button:hover,
+.update-quiz-form form button:focus {
+  border: 1px #000 solid;
+  background-color: #d8d8d8;
+}
+.update-quiz-form form {
+  display: flex;
+  justify-content: left;
+  flex-flow: column;
+  gap: 10px;
+}
+.update-quiz-form form label {
+  font-weight: 600;
+}
+.update-quiz-form form input {
+  border: none;
+  border-bottom: #999 solid 1px;
+  outline: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 5px;
+  color: #333;
+  font-size: 23px;
+}
+.update-quiz-form form input:focus {
+  border-bottom: #000 solid 1px;
+}
+.update-quiz-form form .quiz-public {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 10px;
+  align-items: center;
+}
+.update-quiz-form form .quiz-public input {
+  display: none;
+}
+.update-quiz-form form .quiz-public label {
+  cursor: pointer;
+  border: 1px solid #999;
+  padding: 3px;
+  font-weight: 100;
+}
+.update-quiz-form form .quiz-public input:checked ~ label {
+  background-color: green;
 }

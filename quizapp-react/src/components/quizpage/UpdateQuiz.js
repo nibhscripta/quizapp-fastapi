@@ -10,20 +10,30 @@ const UpdateQuiz = ({ quiz, setQuiz }) => {
     putQuiz(title, content, quizPublic, quiz.id).then((res) => setQuiz(res));
   };
   return (
-    <form onSubmit={(e) => updateQuiz(e)}>
-      <label htmlFor="title">Title</label>
-      <input type="text" id="title" name="title" defaultValue={quiz.title} />
-      <label htmlFor="content">Content</label>
-      <input
-        type="text"
-        id="content"
-        name="content"
-        defaultValue={quiz.content}
-      />
-      <label htmlFor="public">Public</label>
-      <input type="checkbox" id="public" defaultChecked={quiz.public} />
-      <input type="submit" value="Save" />
-    </form>
+    <div className="update-quiz-form">
+      <form onSubmit={(e) => updateQuiz(e)}>
+        <label htmlFor="title">Title:</label>
+        <input type="text" id="title" name="title" defaultValue={quiz.title} />
+        <label htmlFor="content">Content:</label>
+        <input
+          type="text"
+          id="content"
+          name="content"
+          defaultValue={quiz.content}
+        />
+        <div className="quiz-public">
+          <input
+            type="checkbox"
+            name="public"
+            id="public"
+            defaultChecked={quiz.public}
+            value="public"
+          />
+          <label htmlFor="public">Public</label>
+        </div>
+        <button type="submit">Save</button>
+      </form>
+    </div>
   );
 };
 
