@@ -9,10 +9,9 @@ const CreateQuestion = ({ toggleQuestionForm, addQuestion, id }) => {
   };
 
   return (
-    <form onSubmit={(e) => newQuiz(e)}>
-      <h1>New Question</h1>
-      <input type="text" name="question" placeholder="Question" />
-      <input type="submit" value="Create" />
+    <form onSubmit={(e) => newQuiz(e)} className="create-question">
+      <input type="text" name="question" placeholder="New Question" />
+      <button type="submit">Create</button>
     </form>
   );
 };

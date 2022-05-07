@@ -77,3 +77,53 @@
 .update-quiz-form form .quiz-public input:checked ~ label {
   background-color: green;
 }
+
+.create-question {
+  display: grid;
+  grid-template-columns: 1fr min-content;
+  gap: 10px;
+  margin: 20px 0;
+}
+.create-question button {
+  border: 1px #999 solid;
+  background-color: #e8e8e8;
+  outline: none;
+  transition: all ease-in-out 50ms;
+  border-radius: 0;
+  cursor: pointer;
+  padding: 3px;
+  width: fit-content;
+}
+.create-question button:focus,
+.create-question button:hover {
+  border: 1px #000 solid;
+  background-color: #d8d8d8;
+}
+.create-question input {
+  border: none;
+  border-bottom: #999 solid 1px;
+  outline: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 5px;
+  color: #333;
+}
+.create-question input:focus {
+  border-bottom: #000 solid 1px;
+}
+.toggle-question {
+  margin: 11px 0;
+  border: 1px #999 solid;
+  background-color: #e8e8e8;
+  outline: none;
+  transition: all ease-in-out 50ms;
+  border-radius: 0;
+  cursor: pointer;
+  padding: 3px;
+  width: fit-content;
+}
+.toggle-question:focus,
+.toggle-question:hover {
+  border: 1px #000 solid;
+  background-color: #d8d8d8;
+}

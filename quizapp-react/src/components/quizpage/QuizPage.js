@@ -70,7 +70,9 @@ const QuizPage = () => {
   return (
     <div className="quiz-page-container">
       <div className="quiz-info">
-        <Link to="/q">Back</Link>
+        <Link to="/q" tabIndex="-1">
+          Back
+        </Link>
         {quiz && <QuizInfo quiz={quiz} setQuiz={setQuiz} />}
       </div>
       {questionForm ? (
@@ -80,7 +82,9 @@ const QuizPage = () => {
           id={id}
         />
       ) : (
-        <button onClick={toggleQuestionForm}>Create Question</button>
+        <button onClick={toggleQuestionForm} className="toggle-question">
+          Create Question
+        </button>
       )}
       <div className="question-list">
         {questionList.map((question) => (
