@@ -64,7 +64,6 @@ export const QuizQuestion = ({
 
   return (
     <div className="question">
-      <h1>Question:</h1>
       <form onSubmit={(e) => submitQuestion(e)}>
         <input type="text" name="question" defaultValue={question.question} />
         <input type="submit" value="Save Question" />
@@ -78,7 +77,6 @@ export const QuizQuestion = ({
       ) : (
         <CreateAnswer addAnswer={addAnswer} />
       )}
-      <h2>Answers:</h2>
       {answerList.map((answer) => (
         <QuizAnswer
           key={answer.id}

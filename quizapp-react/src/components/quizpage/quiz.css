@@ -8,10 +8,6 @@
   gap: 20px;
 }
 
-.question {
-  border-bottom: #999 1px solid;
-}
-
 .quiz-page-container {
   max-width: 800px;
   margin: 0 auto;
@@ -126,4 +122,9 @@
 .toggle-question:hover {
   border: 1px #000 solid;
   background-color: #d8d8d8;
+}
+
+.question {
+  border: 1px solid #999;
+  padding: 10px;
 }

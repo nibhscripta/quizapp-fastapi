@@ -6,6 +6,7 @@ import QuizDash from "./components/quizdash/QuizDashPage";
 import QuizPage from "./components/quizpage/QuizPage";
 import Assessment from "./components/assessment/Assessment";
 import PrivateRoute from "./utils/PrivateRoute";
+import Register from "./components/register/Register";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             }
           />
           <Route path="/a/:id" exact element={<Assessment />} />
+          <Route path="/register" exact element={<Register />} />
         </Routes>
       </Router>
     </div>
