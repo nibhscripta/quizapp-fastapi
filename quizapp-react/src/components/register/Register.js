@@ -1,11 +1,10 @@
 import RegisterForm from "./RegisterForm";
 
+import { Navigate } from "react-router-dom";
+
 const Register = () => {
-  return (
-    <div>
-      <RegisterForm />
-    </div>
-  );
+  let authToken = localStorage.getItem("authToken");
+  return authToken ? <Navigate to="/q" /> : <RegisterForm />;
 };
 
 export default Register;
