@@ -1,19 +1,20 @@
 import apiUrl from "../../utils/ApiUrl";
 
 const postRegister = async (username, password) => {
-  let formdata = new FormData();
-  formdata.append("username", username);
-  formdata.append("password", password);
-  var requestOptions = {
+  const raw = JSON.stringify({
+    email: username,
+    password: password,
+  });
+  const requestOptions = {
     method: "POST",
-    body: formdata,
     redirect: "follow",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: raw,
   };
-  const res = await fetch(`${apiUrl}/register`, requestOptions);
+  const res = await fetch(`${apiUrl}/users`, requestOptions);
   if (res.status === 200) {
-    const data = await res.json();
-    const authToken = `${data.token_type} ${data.access_token}`;
-    localStorage.setItem("authToken", JSON.stringify(authToken));
   } else {
     console.log(res.status);
   }
