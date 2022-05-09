@@ -11,6 +11,7 @@ const LoginForm = ({ onSubmit }) => {
         <input type="text" name="username" placeholder="Username" />
         <input type="password" name="password" placeholder="Password" />
         <button type="submit">Login</button>
+        <Link to="/register">Create an account</Link>
       </form>
     </div>
   );
