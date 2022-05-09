@@ -9,7 +9,7 @@ const RegisterForm = () => {
     const email = e.target.email.value;
     const password = e.target.password.value;
     await postRegister(email, password);
-    navigate("login");
+    navigate("/login");
   };
   return (
     <form onSubmit={(e) => register(e)}>
