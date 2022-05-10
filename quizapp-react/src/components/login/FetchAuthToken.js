@@ -18,6 +18,7 @@ const FetchAuthToken = async (username, password) => {
     localStorage.setItem("authToken", JSON.stringify(authToken));
   } else {
     console.log(res.status);
+    return res.status;
   }
 };
 

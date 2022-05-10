@@ -1,4 +1,5 @@
 import { Navigate, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import FetchAuthToken from "./FetchAuthToken";
 import LoginForm from "./LoginForm";
@@ -9,19 +10,27 @@ const Login = () => {
 
   const navigate = useNavigate();
 
+  const [loginError, setLoginError] = useState(false);
+
   const login = async (e) => {
     e.preventDefault();
     const username = e.target.username.value;
     const password = e.target.password.value;
-    await FetchAuthToken(username, password);
+    FetchAuthToken(username, password).then((res) => {
+      if (res) {
+        setLoginError(true);
+      } else {
+        navigate("/q");
+      }
+    });
     e.target.password.value = "";
-    authToken = localStorage.getItem("authToken");
-    if (authToken) {
-      navigate("/q");
-    }
   };
 
-  return authToken ? <Navigate to="/q" /> : <LoginForm onSubmit={login} />;
+  return authToken ? (
+    <Navigate to="/q" />
+  ) : (
+    <LoginForm onSubmit={login} error={loginError} />
+  );
 };
 
 export default Login;
