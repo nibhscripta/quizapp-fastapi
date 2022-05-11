@@ -6,6 +6,9 @@ import LoginForm from "./LoginForm";
 import "./login.css";
 
 const Login = () => {
+  const params = new URLSearchParams(window.location.search);
+  const paramName = params.get("username");
+
   let authToken = localStorage.getItem("authToken");
 
   const navigate = useNavigate();
@@ -29,7 +32,7 @@ const Login = () => {
   return authToken ? (
     <Navigate to="/q" />
   ) : (
-    <LoginForm onSubmit={login} error={loginError} />
+    <LoginForm onSubmit={login} error={loginError} paramName={paramName} />
   );
 };
 
